@@ -1,0 +1,3 @@
+Options +Indexes
+IndexOptions NameWidth=* FancyIndexing IgnoreCase SuppressDescription
+RewriteEngine off

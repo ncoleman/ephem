@@ -16,9 +16,19 @@ language = 'en'
 keywords = 'ephemeris xephem pyephem python star sun moon'
 content = 'web based ephemeris generated using python and pyephem'
 title = 'Ephemeris'
+handy = ''                                  # a handy string available anywhere.  I use it for debugging.
 # end config
 
-# params notes:  date and time are stored as entered by user, utc_date tuple is that converted to UTC; utc is boolean indicating whether user is using UTC or local. now is used to indicate whether to override the date with the current time.
+# params notes:  
+# date and time are stored as entered by user, 
+# utc_date tuple is that converted to UTC; 
+# utc is boolean indicating whether user is using UTC or local. 
+# now is used to indicate whether to override the date with the current time.
+# save indicates whether to save settings with cookies
+
+# Booleans: processed, now, save, utc, save, altaz
+
+# Cookies: save, utc, now, minute, hour, day, month, year, city, lat, long, tzname, elev
 params = {
     'processed' : False,
     'now' : False,
@@ -29,9 +39,8 @@ params = {
     'month' : None,
     'year' : None,
     'utc_date' : (),
-    'utc' : None,
+    'utc' : False,
     'tzname': None,
-    'offset' : None,
     'city' : None,
     'lat' : None,
     'long' : None,
@@ -46,7 +55,8 @@ params = {
     'venus' : None,
     'mars' : None,
     'jupiter' : None,
-    'saturn' : None
+    'saturn' : None,
+    'altaz' : True
 }
 
 
@@ -55,56 +65,96 @@ def main():
     global params
     valid = True
     validMsg = ''
+    tick = datetime.now()
+    # There are three initial states:
+    #   no cookies, where everything must be initialised to default values
+    #   cookies, where time, location must be set and missing values set to default, and the rest initialised
+    #   POST, where everything has already been initialised and now changed, then calc'ed and cookies set.
+    # Workflow
+    # Initialise:
+    #   get values:
+    #       if from POST
+    #       elif from cookies
+    #       else from defaults
+    # Then:
+    #   perform calcs
+    #   display:
+    #       display headers
+    #           set cookies
+    #       display form
+    #       display results
+    #       display footers
+
+    # Do setup for POST and cookies
+    form = cgi.FieldStorage()
     cookie = Cookie.SimpleCookie()
     try:
-        # validation not needed since it has been done before when the form was processed in the last session
         cookie.load(os.environ['HTTP_COOKIE'])
-        for key in cookie.keys():
-            if cookie[key].value == 'None' and not params.has_key(key):
-                continue
-            try:
-                params[key] = int(cookie[key].value)        # convert to int if possible
-            except ValueError:
-                params[key] = cookie[key].value
-        params['processed'] = True
-        if params['hour']:                                  # use this as a proxy for 'yes, cookies were found'
-            setUTCDate()
-    except KeyError:
+    except KeyError:                                # no HTTP_COOKIE
         pass
-    #getCookies()
-    cookiestring = ''
-    cookiestringsplit = ''
-#    try:
-#        cookie.load(os.environ['HTTP_COOKIE'])       # get any cookies and fill in params
-#        cookistring = cookie.output()
-#        for key in cookie.keys():
-#            value = cookie[key].value
-#            if params.has_key(key) and value != 'None' and value != 0:
-#                params[key] = value
-#            cookiestringsplit += value
-#    except KeyError:
-#        cookiestring = 'Exception error in cookie load'
-    form = cgi.FieldStorage()
+
+    # do POST processing
     if form.has_key('processed'):                   # then this is the result of a POST
         for key in form.keys():                     # fill in params for any values POSTed
             params[key] = form.getvalue(key)
         params['star'] = form.getlist('star')                 # except that star is a special case
-        if params['utc'] == 'UTC' or params['utc'] == 'True':
-            params['utc'] = True                    # boolean makes it easier to test for subsequenctly
-        else:
-            params['utc'] = False                    # boolean makes it easier to test for subsequenctly
-        if params['now'] == 'now' or params['now'] == 'True':
-            params['now'] = True
-        else:
-            params['now'] = False
+        if form.has_key('clear'):
+            setCookies(clear=True)
+        
+    # do cookies processing
+    elif cookie.has_key('save'):
+        for key in cookie.keys():
+            if params.has_key(key):                             # skip unknown cookies (perhaps set by server)
+                value = cookie[key].value
+                if value and value is not "None" and value is not "False":
+                    params[key] = cookie[key].value
+        #params['processed'] = True
+    # set defaults if not already set
+    else:
+        params['year'], params['month'], params['day'], params['hour'], params['minute']  = datetime.utcnow().timetuple()[:5]
+        params['utc'] = True
+        params['tzname'] = 'UTC'
+    #  fill in any blanks
+    _date = datetime.utcnow().timetuple()[:5]
+    i = 0
+    for key in ['year', 'month', 'day', 'hour', 'minute']:
+        if not params[key]:
+            params[key] = _date[i]
+        i += 1
+
+    # perform validation and tidying
+    # validation still needed since user may have edited cookies externally,
+    # so I moved validation outside of form processing and now it is done for everything.
+
+    # tidy up the booleans
+    for key in ['processed', 'now', 'utc', 'save', 'altaz']:
+        value = params[key]
+        if value == 'True' or value == 'UTC' or value == 'now':
+            params[key] = True
+        if value == 'None' or value == '' or value == 'False':
+            params[key] = False
+    # tidy up the floats
+    for key in ['elev', 'temp', 'pressure']:
+        try:
+            params[key] = float(params[key])
+        except:
+            pass
+    
+    # do form processing
+    if params['processed']:
+
+        # do validation
         valid, validMsg = validateParams()
-        if params['now']:
-            _date = datetime.utcnow().timetuple()[:5]
-            if params['utc']:
-                params['year'], params['month'], params['day'], params['hour'], params['minute'] = _date
-            else:
-                params['year'], params['month'], params['day'], params['hour'], params['minute'] = getLocalDateTime(_date)[:5]
+
         if valid:
+            # do calcs
+            if params['now']:
+                _date = datetime.utcnow().timetuple()[:5]
+                if params['utc']:
+                    params['year'], params['month'], params['day'], params['hour'], params['minute'] = _date
+                else:
+                    params['year'], params['month'], params['day'], params['hour'], params['minute'] = getLocalDateTime(_date)[:5]
+
             for key in ['minute', 'hour', 'day', 'month', 'year']:
                 params[key] = int(params[key])          # tidy up params to correct type
             setUTCDate()
@@ -114,53 +164,27 @@ def main():
                         params[key] = float(params[key])
                 except ValueError:
                     pass
-        setCookies()
+            # do ephem stuff
+            home = doEphemStuff()
+            setCookies()
+
     print "Content-Type: text/html\n\n"
     renderHTMLHead()
-    #print "<p>Environ: %s </p>" % os.environ
-    #print "<p>Cookiestring: %s</p>" % cookiestring
-    #print "<p>Cookiestringsplit: %s</p>" % cookiestringsplit
     if not valid:
         renderErrors(validMsg)
     print '<div id="forms">'
     renderForm()
-    #print "<p>%s</p>" % os.environ
     print '<div id="output">'
-    print "<p>Hello, pyephem</p>"
-    #if params['processed']:
+    print "<p>Results:</p>"
+
+    # render output
     if params['processed'] and valid:
-        if params['city']:
-            home = ephem.city(params['city'])
-        elif params['lat'] and params['long']:
-            home = ephem.Observer()
-            home.name = 'User-provided'
-            home.lat = params['lat']
-            home.long = params['long']
-            home.temp = 15.0        # will be overridden below if a value was manually entered
-            home.elev = 0.0
-            home.pressure = 1010.0
-        else:
-            params['city'] = 'Wembley'
-            home = ephem.city(params['city'])
-        if params['temp']:
-            home.temp = float(params['temp'])
-        if params['elev']:
-            home.elev = float(params['elev'])
-        if params['pressure']:
-            home.pressure = float(params['pressure'])
-        setUTCDate()
-        home.date = ephem.Date(params['utc_date'])
         print '<p>Times are %s, except where specified.</p>' % (params['utc'] and 'UTC' or 'local for ' + params['tzname'])
-        print "<p>Calculation time:  %s Local (%s UTC) Timezone: %s<br />Location:  %s, lat %s long %s,<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]),  home.date, params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
-        print '<table border="0" cellspacing="5"><tr><th></th><th>Altitude</th><th>Azimuth</th><th>Direction</th><th>Magnitude</th><th>Phase</th><th>%s Next Rise</th><th>Set</th></tr>' % (params['utc'] and 'UTC' or '')
+        print "<p>For time:  <br />%s Local <br />%s UTC <br />Timezone: %s<br />Location:  %s, lat %s long %s,<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]),  home.date, params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
+        altaz = params['altaz'] and ('Altitude', 'Azimuth') or ('RA', 'Dec')
+        print 'Times are %s. Click column heading to sort.' % (params['utc'] and 'UTC' or 'local')
+        print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Direction</th><th>Magnitude</th><th>Phase</th><th>Rise</th><th>Set</th></tr>' % (altaz)
         format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td> %3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td></tr>'
-        params['sun'] = ephem.Sun(home)
-        params['moon'] = ephem.Moon(home)
-        params['mercury'] = ephem.Mercury(home)
-        params['venus'] = ephem.Venus(home)
-        params['mars'] = ephem.Mars(home)
-        params['jupiter'] = ephem.Jupiter(home)
-        params['saturn'] = ephem.Saturn(home)
         for body in ['sun','moon','mercury','venus','mars','jupiter','saturn']:
             if params['utc']:
                 rtime = home.next_rising(params[body]).tuple()
@@ -171,12 +195,17 @@ def main():
             risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
             settime = '%02.0f:%02.0f' % (stime[3], stime[4])
             params[body].compute(home)
-            print format % (body.capitalize(), roundAngle(params[body].alt), roundAngle(params[body].az), azDirection(params[body].az), params[body].mag, params[body].phase, risetime, settime)
-        print "<tr><td>-----</td></tr>"
+            altazradec = params['altaz'] and (params[body].alt, params[body].az) or (params[body].ra, params[body].dec)
+            print format % (body.capitalize(), roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(params[body].az), params[body].mag, params[body].phase, risetime, settime)
+        print """</table>"""
+        print '<table class="sortable" id="results_stars" ><tr><th>Star</th><th>%s</th><th>%s</th><th>Direction</th><th>Magnitude</th><th>Rise</th><th>Set</th></tr>' % altaz
         stars = []
         for s in params['star']:
             stars.append(ephem.star(s))
         for s in stars:
+            s.compute(home)
+            if s.alt < 0:                                   # only bother if star is above the horizon (TODO make this an option)
+                continue
             try:
                 if params['utc']:
                     rtime = home.next_rising(s).tuple()
@@ -186,18 +215,53 @@ def main():
                     stime = getLocalDateTime(home.next_setting(s).tuple())
                 risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
                 settime = '%02.0f:%02.0f' % (stime[3], stime[4])
-            except (ValueError):
+            except (ValueError):                                # either never sets or never rises
                 risetime = -1
                 settime = -1
             s.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (s.name, roundAngle(s.az), roundAngle(s.alt), s.mag)
-            print format % (s.name, roundAngle(s.alt), roundAngle(s.az), azDirection(s.az), s.mag, 0.0, risetime, settime)
+            format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td> %3s</td><td>%.0f</td><td>%s</td><td>%s</td></tr>'
+            print format % (s.name, roundAngle(s.alt), roundAngle(s.az), azDirection(s.az), s.mag, risetime, settime)
         print '</table>'
-        print "<p>Done.</p>"
+        tock = datetime.now()
+        print "<p><small>Done in %s.</small></p>" % ( tock - tick)
     print """</div><!-- output -->
             </div><!-- forms -->"""
     renderHTMLIntro()
     renderHTMLFooter()
+
+def doEphemStuff():
+    """ creates home and planets; returns home"""
+    if params['city']:
+        params['lat'], params['long'] = None, None
+        home = ephem.city(params['city'])
+    elif params['lat'] and params['long']:
+        home = ephem.Observer()
+        home.name = 'User-provided'
+        home.lat = params['lat']
+        home.long = params['long']
+        home.temp = 15.0        # will be overridden below if a value was manually entered
+        home.elev = 0.0
+        home.pressure = 1010.0
+    else:
+        params['city'] = 'Wembley'
+        home = ephem.city(params['city'])
+    if params['temp']:
+        home.temp = params['temp']
+    if params['elev']:
+        home.elev = params['elev']
+    if params['pressure']:
+        home.pressure = params['pressure']
+    home.date = ephem.Date(params['utc_date'])
+    params['sun'] = ephem.Sun(home)
+    params['moon'] = ephem.Moon(home)
+    params['mercury'] = ephem.Mercury(home)
+    params['venus'] = ephem.Venus(home)
+    params['mars'] = ephem.Mars(home)
+    params['jupiter'] = ephem.Jupiter(home)
+    params['saturn'] = ephem.Saturn(home)
+    return home
+
 
 
 def roundAngle(angle):
@@ -222,6 +286,7 @@ def renderHTMLHead():
     }
     </script>
         <link rel=\"stylesheet\" href=\"ephemeris.css\" type=\"text/css\" />
+        <script type="text/javascript" src="js/sortable.js"></script>
         <title>Ephemeris</title>
     </head><body><div id="content"><a name="top"></a><h2>Ephemeris</h2><p><a href="#intro">Introduction</a> and help.</p>"""
 
@@ -238,13 +303,20 @@ def getCookies():
     for key in cookie.keys():
         params['key'] = cookie[key].value
 
-def setCookies():
-    if params['save']:
-        cookie = Cookie.SimpleCookie()
-        for key in ['hour', 'minute', 'day', 'month', 'year', 'utc', 'tzname', 'city', 'lat', 'long']: 
-            cookie[key] = params[key]
-            cookie[key]['expires'] = 63072000   # 2 years in seconds
-            cookie[key]['path'] = '/ephem'
+def setCookies(clear=False):
+    cookie = Cookie.SimpleCookie()
+    if clear:
+        expire = -1                                  # 
+    else:
+        expire = 63072000                           # 2 years in seconds
+    for key in ['hour', 'minute', 'day', 'month', 'year', 'now', 'utc', 'tzname', 'city', 'lat', 'long', 'save']: 
+        cookie[key] = params[key]
+        cookie[key]['path'] = '/ephem'
+        if params[key]:                             # avoid None or False params
+            cookie[key]['expires'] = expire
+        else:                                       # the purpose of this is to expire existing cookie where the value has been changed to None or False
+            cookie[key]['expires'] = -1
+    if params['save'] or clear:
         print cookie.output()
 
 
@@ -263,15 +335,15 @@ def validateParams():
             validateMsg += r'<p class="error">Longitute invalid.</p>'
             valid = False
         # -/+ any 3 digit number plus floating part
-        if params['temp'] and not re.match(r'^[-+]?[0-9]{1,3}(\.[0-9]*)*$', params['temp']):
+        if params['temp'] and not re.match(r'^[-+]?[0-9]{1,3}(\.[0-9]*)*$', str(params['temp'])):
             validateMsg += r'<p class="error">Temperature %s is invalid</p>' % params['temp']
             valid = False
         # any positive 4 digit number plus floating part
-        if params['elev'] and not re.match(r'^[-+]?[0-9]{1,4}(\.[0-9]*)*$', params['elev']):
+        if params['elev'] and not re.match(r'^[-+]?[0-9]{1,4}(\.[0-9]*)*$', str(params['elev'])):
             validateMsg += r'<p class="error">Elevation %s is invalid</p>' % params['elev']
             #params['elev'] = 0.0
             valid = False
-        if params['pressure'] and not re.match(r'^[0-9]{3,4}(\.[0-9]*)?$', params['pressure']):
+        if params['pressure'] and not re.match(r'^[0-9]{3,4}(\.[0-9]*)?$', str(params['pressure'])):
             validateMsg += r'<p class="error">Pressure %s is invalid</p>' % params['pressure']
             valid = False
         if params['year'] and not re.match(r'^[0-9]{3,4}$', params['year']):
@@ -293,13 +365,13 @@ def validateParams():
         if params['year'] == 2:
             validateMsg += r'<p class="error">Month: %s is not a valid day for that month $s.</p>' % (params['day'], params['month'])
             valid = False
-        if params['temp'] and not (-50 < float(params['temp']) < 60):
+        if params['temp'] and not (-50 < params['temp'] < 60):
             validateMsg += r'<p class="error">Temp: %s is out of the allowed temperature range of -50C to +50C. (Did you use Fahrenheit?)</p>' % params['temp']
             valid = False
-        if params['elev'] and not (-100 < float(params['elev']) < 10000):
+        if params['elev'] and not (-100 < params['elev'] < 10000):
             validateMsg += r'<p class="error">Elev: %s is out of the allowed elevation range of -100m to +10000m.<br /><small>(The maximum was chosen arbitrarily.  If you really need an elevation higher than 10,000m, email me.)</small></p>' % params['temp']
             valid = False
-        if params['pressure'] and not (900 < float(params['pressure']) < 1100):
+        if params['pressure'] and not (900 < params['pressure'] < 1100):
             validateMsg += r'<p class="error">Pressure: %s is out of the allowed pressure range of 900 mB to 1100mB.</p>' % params['temp']
             valid = False
         return valid, validateMsg
@@ -324,22 +396,10 @@ def renderForm():
     #city_list = ephem.cities._city_data.keys()     # this doesn't work, cities not found?
     #city_list.sort()
     print"""<div id="input">
-    <form action="/ephem/index.cgi" method="POST">"""
-    #print "<p>TEST day, month, year %s %s %s,</p>" % (params['day'], params['month'], params['year'])
-    date = ephem.now().tuple()
-    if not params['minute']:
-        params['minute'] = int(date[4])
-    if not params['hour']:
-        params['hour'] = date[3]
-    if not params['day']:
-        params['day'] = date[2]
-    if not params['month']:
-       params['month'] = date[1]
-    if not params['year']:
-        params['year'] = date[0]
-    print "<fieldset><legend><b>Time & Date</b></legend>"
-    print """
-    <table border="0" cellspacing="10" cellpadding="0"><tr align="center"><td>hour</td><td>minute</td><td>day</td><td>month</td><td>year</td><td> </td><td>Now</td></tr>
+    <form action="/ephem/index.cgi" method="POST">
+    <fieldset><legend><b>Time & Date</b></legend>
+    <table border="0" cellspacing="10" cellpadding="0">
+    <tr align="center"><td>hour</td><td>minute</td><td>day</td><td>month</td><td>year</td><td> </td><td>Now</td></tr>
     <tr align="right"><td><select name="hour" onfocus="uncheckNow()">"""
     hours = ''
     for h in range(0,24):
@@ -377,19 +437,15 @@ def renderForm():
     print months
     print "</select></td>"
     if params['now']:
-        checked = 'checked'
+        checked = ( 'checked')
     else:
-        checked = ''
-    print '<td><input type="text" name="year" value="%s" size="5" onfocus="uncheckNow()" /></td><td> or  </td><td><input type="checkbox" name="now" value="now" %s /></td></tr></table><br />' % (params['year'], checked)
+        checked = ( '')
+    print '<td><input type="text" name="year" value="%s" size="5" onfocus="uncheckNow()" /></td><td> or  </td><td><input type="checkbox" name="now" value="True" %s /></td></tr></table><br />' % (params['year'], checked)
     if params['utc']:
         checked = ('checked', '')
     else:
         checked = ('', 'checked')
-    print ' UTC <input type="radio" name="utc" value="UTC" %s /><br />Local <input type="radio" name="utc" value="local" %s /> ' % checked
-    if params['offset']:
-        checked = params['offset']
-    else:
-        checked = 0.0
+    print ' UTC <input type="radio" name="utc" value="True" %s /><br />Local <input type="radio" name="utc" value="False" %s /> ' % checked
     print 'Timezone: <select name="tzname">'
     if params['utc']:
         zones = '<option value ="UTC" selected>UTC</option>'
@@ -415,27 +471,17 @@ def renderForm():
     print """
     </select> <small>Overrides any latitude and longitude below</small></fieldset><fieldset><legend>or input location manually</legend>
     <small>West, South negative</small><br />"""
-    if params['lat']:
-        print 'Latitude: <input type="text" name="lat" value="%s" size="10" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />' % params['lat']
-    else:
-        print 'Latitude: <input type="text" name="lat" value="" size="10" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />'
-    if params['long']:
-        print 'Longitude: <input type="text" name="long" value="%s"size="10" /><br />' % params['long']
-    else:
-        print 'Longitude: <input type="text" name="long" value=""size="10" /><br />'
+    value = params['lat'] or ''
+    print 'Latitude: <input type="text" name="lat" value="%s" size="10" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />' % value
+    value = params['long'] or ''
+    print 'Longitude: <input type="text" name="long" value="%s"size="10" /><br />' % value
     print "<hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />"
-    if params['temp']:
-        print 'Temperature: <input type="text" name="temp" value="%s"size="5" />C  <small>default: 15C.</small><br />' % params['temp']
-    else:
-        print 'Temperature: <input type="text" name="temp" value=""size="5" />C  <small>default: 15C.</small><br />'
-    if params['elev']:
-        print  'Elevation: <input type="text" name="elev" value="%s"size="5" />metres <small>default: 0.0m</small><br />' % params['elev']
-    else:
-        print  'Elevation: <input type="text" name="elev" value=""size="5" />metres <small>default: 0.0m</small><br />'
-    if params['pressure']:
-        print 'Barometric Pressure: <input type="text" name="pressure" value="%s"size="5" />mBar <small>default: 1010mB</small><br />' % params['pressure']
-    else:
-        print 'Barometric Pressure: <input type="text" name="pressure" value=""size="5" />mBar <small>default: 1010mB</small><br />'
+    value =  params['temp'] or ''
+    print 'Temperature: <input type="text" name="temp" value="%s"size="5" />C  <small>default: 15C.</small><br />' % value
+    value = params['elev'] or ''
+    print  'Elevation: <input type="text" name="elev" value="%s"size="5" />metres <small>default: 0.0m</small><br />' % value
+    value =  params['pressure'] or ''
+    print 'Barometric Pressure: <input type="text" name="pressure" value="%s"size="5" />mBar <small>default: 1010mB</small><br />' % value
     print """
     </fieldset></fieldset>
     <fieldset><legend><b>Bodies</b></legend>
@@ -449,7 +495,7 @@ def renderForm():
     <input type="checkbox" name="saturn" value="True" checked/> Saturn<br />
     </fieldset><fieldset><legend>Stars</legend>
     <small>Multiple selections use the control key</small><br />
-    <select name="star" multiple align="bottom"> """
+    <select name="star" multiple > """
     stars = '<option value=""></option>'
     params['star'] += ''                  # make sure star has at least one member
     for s in star_list:
@@ -461,13 +507,18 @@ def renderForm():
             stars += '<option value=\"' + s + '\">' + s + '</option>'
     print stars
     print """</select></fieldset></fieldset>
+    <fieldset><legend>Results</legend>
+    Display results in Alt/Az<input type="radio" name="altaz" value="True" checked />
+     RA/Dec<input type="radio" name="altaz" value="False"  />
+    </fieldset>
     <fieldset><legend><b>Go</b></legend>
     <input type="hidden" name="processed" value="True" />"""
-    if params['save']:
+    if params['save'] or not params['processed']:
         checked = 'checked'
     else:
         checked = ''
     print """Save settings: <input type="checkbox" name="save" value="True" %s />
+    Clear settings: <input type="checkbox" name="clear" value="True" />
     <input type="submit" value="Submit" />
     </fieldset>
     </form></div><!-- input -->""" % checked
@@ -504,7 +555,7 @@ def getLocalDateTime(date):
 def renderHTMLIntro():
     print """
     <div id="intro"><a name="intro"></a>
-    <h1>Ephemeris</h1>
+    <h3>Ephemeris</h3>
     <p>This is a general purpose ephemeris.  It can display a range of information for the planets and the major stars as viewed from any location on Earth.  </p>
     <p>Major cities can be selected from the drop-down list, or you can enter a latitude and longitude.</p>
     <p>Use either UTC or local timezone to select the time.</p>
@@ -515,15 +566,15 @@ def renderHTMLIntro():
     <li>Select a city, or</li>
     <li>Enter the latitude and longitude.</li>
     <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.<ul>
-        <li>Each city has its own default elevation, which is displayed in the output.</li>
-        <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspaper report.</li></ul></li>
+        <li>Cities have their own default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
+        <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspapers report.</li></ul></li>
     <li>Select which of the planets you wish to see (temporarily disabled; you get the lot, free!).</li>
     <li>Select one or more stars you wish to see (use the control key to select multiple stars).</li>
     <li>Save settings stores your date, timezone and location information for later.  It uses cookies so it won't work if you have cookies disabled for this site.</li>
     </ul>
     <h4>Output</h4>
     <ul>
-    <li>The next rise and set times are <i>always</i> in the immediate future.  That means the next set may be before the next rise or vice versa. When the body is currently above the horizon, setting occurs before the next rising. When the body is below the horizon, e.g. on the other side of the Earth, it will rise before it sets next.  <br />You can tell which event occurs next by checking if the body is above or below the horizon currently: if above, the next event will be the set, followed by the rise; if below, the next event will be the rise followed by the set.</li>
+    <li>The next rise and set times are always the next event in the immediate future.  That means the next set time may be before the next rise time, or it could be the other way around.  This can be confusing to newcomers. When the body is currently above the horizon, setting will occur  before the next rising. On the other hand, when the body is below the horizon, e.g. on the other side of the Earth, it will rise before it sets next.  <br />You can tell which event occurs next by checking if the body is above or below the horizon currently: if above, the next event will be the set, followed by the rise; if below, the next event will be the rise followed by the set.</li>
     <li>Some stars either never set or never rise for your location, which means there is no set time or rise time.  In that case, the time is shown as -1 instead.</li>
     </ul>
     <h4>About</h4>
@@ -537,10 +588,12 @@ def renderHTMLIntro():
     <!--
     <li>Get local vs UTC sorted out and working correctly</li>
     <li>Work out how to programatically calculate timezone offsets so I can display times in the user's local time.</li> -->
+    <li>Allow for bodies below the horizon to be excluded from the output.</li>
     <li>create star charts. I think I know how to do it and am now mulling over which projection method to use.  I'm leaning towards stereographic at the moment.</li>
     <li>tidy up the planets output.</li>
     <li>tidy up the stars output</li>
     <li>Tidy up the HTML to be standards compliant with doctype, correct meta headers, and so on.
+    <li>Tested on google-chrome, opera and firefox.   Opera appears to have some problems with reading cookies on the initial page, but works correctly after submitting the form.  Chrome and firefox work fine.  Not yet tested on IE.</li>
     </ul>
     <a href="#top">Top of page</a>
     </div><!-- intro -->

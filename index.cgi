@@ -171,7 +171,7 @@ def main():
             home = doEphemStuff()
             setCookies()
 
-    print "Content-Type: text/html\n\n"
+    print "Content-Type: text/html; charset=utf-8\n\n"
     renderHTMLHead()
     if not valid:
         renderErrors(validMsg)
@@ -284,18 +284,25 @@ def azDirection(az):
 
 
 def renderHTMLHead():
-    print """<html><head>
-        <META NAME="ephemeris xephem python" CONTENT="web based ephemeris written in Python using the pyephem">
-    <script type="text/javascript">
-    function uncheckNow() {
-        var elements = document.getElementsByName('now');
-        elements[0].checked = false;        // poss Bug: assumes only one element named 'now'
-    }
-    </script>
-        <link rel=\"stylesheet\" href=\"ephemeris.css\" type=\"text/css\" />
-        <script type="text/javascript" src="js/sortable.js"></script>
-        <title>Ephemeris</title>
-    </head><body><div id="content"><a name="top"></a><a href="/">Home</a><h2>Ephemeris</h2><p><a href="#intro">Introduction</a> and help.</p>"""
+    #print """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+    print """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html  xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+        <head>
+            <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+            <meta name="keywords" content="ephemeris xephem python" />
+            <meta name="description" content="web based ephemeris written in Python using the pyephem"/>
+            <script type="text/javascript">
+                function uncheckNow() {
+                    var elements = document.getElementsByName('now');
+                    elements[0].checked = false;        // poss Bug: assumes only one element named 'now'
+                }
+            </script>
+            <link rel="stylesheet" href="ephemeris.css" type="text/css" />
+            <script type="text/javascript" src="js/sortable.js"></script>
+            <title>Ephemeris</title>
+        </head>
+        <body><div id="content"><a name="top"></a><a href="/">Home</a><h1>Ephemeris</h1><p><a href="#intro">Introduction</a> and help.</p>"""
 
 
 def renderHTMLFooter():
@@ -403,15 +410,15 @@ def renderForm():
     #city_list = ephem.cities._city_data.keys()     # this doesn't work, cities not found?
     #city_list.sort()
     print"""<div id="input">
-    <form action="/ephem/index.cgi" method="POST">
-    <fieldset><legend><b>Time & Date</b></legend>
-    <table name="date_table">
+    <form action="/ephem/index.cgi" method="post">
+    <fieldset><legend><b>Time &amp; Date</b></legend>
+    <table id="date_table">
     <tr align="center"><td>hour</td><td>minute</td><td>day</td><td>month</td><td>year</td><td> </td><td>Now</td></tr>
     <tr align="right"><td><select name="hour" onfocus="uncheckNow()">"""
     hours = ''
     for h in range(0,24):
         if str(h) == str(params['hour']):
-            hours += '<option value="' + str(h) + '" selected>' + str(h) + '</option>'
+            hours += '<option value="' + str(h) + '" selected="selected">' + str(h) + '</option>'
         else:
             hours += '<option value="' + str(h) + '" >' + str(h) + '</option>'
     print hours
@@ -420,7 +427,7 @@ def renderForm():
     minutes = ''
     for m in range(0,60):
         if str(m) == str(params['minute']):
-            minutes += '<option value="' + str(m) + '" selected>' + str(m) + '</option>'
+            minutes += '<option value="' + str(m) + '" selected="selected">' + str(m) + '</option>'
         else:
             minutes += '<option value="' + str(m) + '" >' + str(m) + '</option>'
     print minutes
@@ -429,7 +436,7 @@ def renderForm():
     days = ''
     for d in range(1,32):
         if str(d) == str(params['day']):
-            days += '<option value="' + str(d) + '" selected>' + str(d) + '</option>'
+            days += '<option value="' + str(d) + '" selected="selected">' + str(d) + '</option>'
         else:
             days += '<option value="' + str(d) + '" >' + str(d) + '</option>'
     print days
@@ -438,20 +445,20 @@ def renderForm():
     months = ''
     for m in range(1,13):
         if str(m) == str(params['month']):
-            months += '<option value="' + str(m) + '" selected>' + str(m) + '</option>'
+            months += '<option value="' + str(m) + '" selected="selected">' + str(m) + '</option>'
         else:
             months += '<option value="' + str(m) + '" >' + str(m) + '</option>'
     print months
     print "</select></td>"
     if params['now']:
-        checked = ( 'checked')
+        checked = ( 'checked="checked"')
     else:
         checked = ( '')
     print '<td>/<input type="text" name="year" value="%s" size="5" onfocus="uncheckNow()" /></td><td> or  </td><td><input type="checkbox" name="now" value="True" %s /></td></tr></table><br />' % (params['year'], checked)
     if params['utc']:
-        checked = ('checked', '')
+        checked = ('checked="checked"', '')
     else:
-        checked = ('', 'checked')
+        checked = ('', 'checked="checked"')
     print """
     <table style="display: inline; margin: 0px; padding: 0px;">
     <tr><td>UTC</td><td><input type="radio" name="utc" value="True" %s /></td></tr>
@@ -459,7 +466,7 @@ def renderForm():
     </table>""" % checked
     print 'Timezone: <select name="tzname">'
     if params['utc']:
-        zones = '<option value ="UTC" selected>UTC</option>'
+        zones = '<option value ="UTC" selected="selected">UTC</option>'
     else:
         zones = '<option value ="UTC">UTC</option>'
     for z in tz_list:
@@ -475,7 +482,7 @@ def renderForm():
     cities = '<option value=""></option>'
     for c in city_list:
         if params['city'] and c == params['city']:
-            cities += '<option value=\"' + c + '\" selected>' + c + '</option>'
+            cities += '<option value=\"' + c + '\" selected="selected">' + c + '</option>'
         else:
             cities += '<option value=\"' + c + '\">' + c + '</option>'
     print  cities
@@ -485,42 +492,42 @@ def renderForm():
     value = params['lat'] or ''
     print 'Latitude: <input type="text" name="lat" value="%s" size="10" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />' % value
     value = params['long'] or ''
-    print 'Longitude: <input type="text" name="long" value="%s"size="10" /><br />' % value
+    print 'Longitude: <input type="text" name="long" value="%s" size="10" /><br />' % value
     print "<hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />"
     value =  params['temp'] or ''
-    print 'Temperature: <input type="text" name="temp" value="%s"size="5" />C  <small>default: 15C.</small><br />' % value
+    print 'Temperature: <input type="text" name="temp" value="%s" size="5" />C  <small>default: 15C.</small><br />' % value
     value = params['elev'] or ''
-    print  'Elevation: <input type="text" name="elev" value="%s"size="5" />metres <small>default: 0.0m</small><br />' % value
+    print  'Elevation: <input type="text" name="elev" value="%s" size="5" />metres <small>default: 0.0m</small><br />' % value
     value =  params['pressure'] or ''
-    print 'Barometric Pressure: <input type="text" name="pressure" value="%s"size="5" />mBar <small>default: 1010mB</small><br />' % value
+    print 'Barometric Pressure: <input type="text" name="pressure" value="%s" size="5" />mBar <small>default: 1010mB</small><br />' % value
     print """
     </fieldset></fieldset>
     <fieldset><legend><b>Bodies</b></legend>
     <fieldset><legend>Solar System</legend>
-    <input type="checkbox" name="sun" value="True" checked /> Sun<br />
-    <input type="checkbox" name="moon" value="True" checked /> Moon<br />
-    <input type="checkbox" name="mercury" value="True" checked/> Mercury<br />
-    <input type="checkbox" name="venus" value="True" checked/> Venus<br />
-    <input type="checkbox" name="mars" value="True" checked/> Mars<br />
-    <input type="checkbox" name="jupiter" value="True" checked/> Jupiter<br />
-    <input type="checkbox" name="saturn" value="True" checked/> Saturn<br />
+    <input type="checkbox" name="sun" value="True" checked="checked" /> Sun<br />
+    <input type="checkbox" name="moon" value="True" checked="checked" /> Moon<br />
+    <input type="checkbox" name="mercury" value="True" checked="checked"/> Mercury<br />
+    <input type="checkbox" name="venus" value="True" checked="checked"/> Venus<br />
+    <input type="checkbox" name="mars" value="True" checked="checked"/> Mars<br />
+    <input type="checkbox" name="jupiter" value="True" checked="checked"/> Jupiter<br />
+    <input type="checkbox" name="saturn" value="True" checked="checked"/> Saturn<br />
     </fieldset><fieldset><legend>Stars</legend>
     <small>Multiple selections use the control key</small><br />
-    <select name="star" multiple > """
+    <select name="star" multiple="multiple" > """
     stars = '<option value=""></option>'
     params['star'] += ''                  # make sure star has at least one member
     for s in star_list:
         for ss in params['star']:
             if s == ss:
-                stars += '<option value=\"' + s + '\" selected>' + s + '</option>'
+                stars += '<option value=\"' + s + '\" selected="selected">' + s + '</option>'
                 break
         else:
             stars += '<option value=\"' + s + '\">' + s + '</option>'
     print stars
     if params['altaz']:
-        checked = ('checked','')
+        checked = ('checked="checked"','')
     else:
-        checked = ('', 'checked')
+        checked = ('', 'checked="checked"')
     print """</select></fieldset></fieldset>
     <fieldset><legend>Results</legend>
     Display results in Alt/Az<input type="radio" name="altaz" value="True" %s />
@@ -528,9 +535,9 @@ def renderForm():
      Only objects above horizon?<input type="checkbox" name="above_horiz" value="True" %s />
     </fieldset>
     <fieldset><legend><b>Go</b></legend>
-    <input type="hidden" name="processed" value="True" />""" % ( checked + (params['above_horiz'] and 'checked' or '',))
+    <input type="hidden" name="processed" value="True" />""" % ( checked + (params['above_horiz'] and 'checked="checked"' or '',))
     if params['save'] or not params['processed']:
-        checked = 'checked'
+        checked = 'checked="checked"'
     else:
         checked = ''
     print """Save settings: <input type="checkbox" name="save" value="True" %s />
@@ -571,11 +578,11 @@ def getLocalDateTime(date):
 def renderHTMLIntro():
     print """
     <div id="intro"><a name="intro"></a>
-    <h3>Ephemeris</h3>
+    <h2>Ephemeris</h2>
     <p>This is a general purpose ephemeris.  It can display a range of information for the planets and the major stars as viewed from any location on Earth.  </p>
     <p>Major cities can be selected from the drop-down list, or you can enter a latitude and longitude.</p>
     <p>Use either UTC or local timezone to select the time.</p>
-    <h4>Use</h4>
+    <h3>Use</h3>
     <ul> 
     <li>Select the time and date.  Initially, it is set to current time UTC.</li>
     <li>Select UTC or local time and select your timezone.</li>
@@ -588,15 +595,15 @@ def renderHTMLIntro():
     <li>Select one or more stars you wish to see (use the control key to select multiple stars).</li>
     <li>Save settings stores your date, timezone and location information for later.  It uses cookies so it won't work if you have cookies disabled for this site.</li>
     </ul>
-    <h4>Output</h4>
+    <h3>Output</h3>
     <ul>
     <li>The next rise and set times are always the next event in the immediate future.  That means the next set time may be before the next rise time, or it could be the other way around.  This can be confusing to newcomers. When the body is currently above the horizon, setting will occur  before the next rising. On the other hand, when the body is below the horizon, e.g. on the other side of the Earth, it will rise before it sets next.  <br />You can tell which event occurs next by checking if the body is above or below the horizon currently: if above, the next event will be the set, followed by the rise; if below, the next event will be the rise followed by the set.</li>
     <li>Some stars either never set or never rise for your location, which means there is no set time or rise time.  In that case, the time is shown as -1 instead.</li>
     </ul>
-    <h4>About</h4>
+    <h3>About</h3>
     <p>This is version 1.0, usable but not tidy or complete yet.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>
     <p>pyEphem made the astronomy calculations easy.  Almost all the development work was in data validation, getting cookies to work properly, and the html.</p>
-    <h4>To Do</h4>
+    <h3>To Do</h3>
     <ul>
     <!-- <li>Get saved settings working.  The cookies implementation is not working properly, so I've disabled it.</li> -->
     <!-- <li>Fix Moon next rise bug.</li> -->
@@ -608,7 +615,7 @@ def renderHTMLIntro():
     <li>create star charts. I think I know how to do it and am now mulling over which projection method to use.  I'm leaning towards stereographic at the moment.</li>
     <li>tidy up the planets output.</li>
     <li>tidy up the stars output</li>
-    <li>Tidy up the HTML to be standards compliant with doctype, correct meta headers, and so on.
+    <li>Tidy up the HTML to be standards compliant with doctype, correct meta headers, and so on.</li>
     <li>Tested on google-chrome, opera and firefox.   Opera appears to have some problems with reading cookies on the initial page, but works correctly after submitting the form.  Chrome and firefox work fine.  Not yet tested on IE.</li>
     </ul>
     <a href="#top">Top of page</a>

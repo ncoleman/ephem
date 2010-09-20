@@ -6,12 +6,12 @@ DONE
 *   09/15/2010  added ability to exclude objects below the horizon from the
 results.
 *   09/18/2010  added Constellations to the output
+*   09/20/2010  validated as strict XHTML 1.0
 
 
 TODO
 ====
 
-*   Fix up all header tags to be compliant
-
+*   DONE Fix up all header tags to be compliant
 *   DONE Allow for output sorting on various fields NJC 09/15/2010 
 *   DONE Have an option to exclude from output anything below the horizon 09/15/2010  

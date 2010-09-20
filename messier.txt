@@ -1,0 +1,112 @@
+ M    NGC  Con    RA      Dec    Mag  Size (min)  Typ  Distance Common Name
+---  ----  ---  ------- ------  ----  ----------  ---  -------- -------------
+M1  1952  Tau  05 34.5  22 01   9.0  6 x 4       SNR      6.3  Crab Nebula
+M2  7089  Aqr  21 33.5 -00 49   7.5  12.9        GCl     36
+M3  5272  CVn  13 42.2  28 23   7.0  16.2        GCl     31
+M4  6121  Sco  16 23.6 -26 32   7.5  26.3        GCl      7
+M5  5904  Ser  15 18.6  02 05   7.0  17.4        GCl     23
+M6  6405  Sco  17 40.1 -32 13   4.5  15.0        OCl      2    Butterfly Cluster
+M7  6475  Sco  17 53.9 -34 49   3.5  80.0        OCl      1    Ptolemy's Cluster
+M8  6523  Sgr  18 03.8 -24 23   5.0  60 x 35     C/N      6.5  Lagoon Nebula
+M9  6333  Oph  17 19.2 -18 31   9.0  9.3         GCl     26
+M10  6254  Oph  16 57.1 -04 06   7.5  15.1        GCl     13
+M11  6705  Sct  18 51.1 -06 16   7.0  14.0        OCl      6    Wild Duck Cluster
+M12  6218  Oph  16 47.2 -01 57   8.0  14.5        GCl     18
+M13  6205  Her  16 41.7  36 28   7.0  16.6        GCl     22    Hercules Cluster
+M14  6402  Oph  17 37.6 -03 15   9.5  11.7        GCl     27
+M15  7078  Peg  21 30.0  12 10   7.5  12.3        GCl     33
+M16  6611  Ser  18 18.8 -13 47   6.5  7.0         C/N      7    assoc with Eagle Nebula, Star Queen Nebula
+M17  6618  Sgr  18 20.8 -16 11   7.0  11.0        C/N      5    Omega Nebula, Swan Nebula, Lobster Nebula
+M18  6613  Sgr  18 19.9 -17 08   8.0  9.0         OCl      6
+M19  6273  Oph  17 02.6 -26 16   8.5  13.5        GCl     27
+M20  6514  Sgr  18 02.6 -23 02   5.0  28.0        C/N      2.2  Trifid Nebula
+M21  6531  Sgr  18 04.6 -22 30   7.0  13.0        OCl      3
+M22  6656  Sgr  18 36.4 -23 54   6.5  24.0        GCl     10
+M23  6494  Sgr  17 56.8 -19 01   6.0  27.0        OCl      4.5
+M24  6603  Sgr  18 16.9 -18 29  11.5  5.0                 10    contains "Delle Caustiche"
+M25 i4725  Sgr  18 31.6 -19 15   4.9  40.0        OCl      2
+M26  6694  Sct  18 45.2 -09 24   9.5  15.0        OCl      5
+M27  6853  Vul  19 59.6  22 43   7.5  8.0 x 5.7   PlN      1.25 Dumbbell Nebula
+M28  6626  Sgr  18 24.5 -24 52   8.5  11.2        GCl     18
+M29  6913  Cyg  20 23.9  38 32   9.0  7.0         OCl      7.2
+M30  7099  Cap  21 40.4 -23 11   8.5  11.0        GCl     25
+M31   224  And  00 42.7  41 16   4.5  178         Gal   2200    Andromeda Galaxy
+M32   221  And  00 42.7  40 52  10.0  8 x 6       Gal   2200
+M33   598  Tri  01 33.9  30 39   7.0  73 x 45     Gal   2300    Triangulum Galaxy
+M34  1039  Per  02 42.0  42 47   6.0  35.0        OCl      1.4
+M35  2168  Gem  06 08.9  24 20   5.5  28.0        OCl      2.8
+M36  1960  Aur  05 36.1  34 08   6.5  12.0        OCl      4.1
+M37  2099  Aur  05 52.4  32 33   6.0  24.0        OCl      4.6
+M38  1912  Aur  05 28.7  35 50   7.0  21.0        OCl      4.2
+M39  7092  Cyg  21 32.2  48 26   5.5  32.0        OCl      0.3
+M40  WIN4  UMa  12 22.4  58 05   9.0  0.8                       Double Star WNC4
+M41  2287  CMa  06 47.0 -20 44   5.0  38.0        OCl      2.4
+M42  1976  Ori  05 35.4 -05 27   5.0  85 x 60     DfN      1.6  Orion Nebula
+M43  1982  Ori  05 35.6 -05 16   7.0  20 x 15     DfN      1.6  de Mairan's nebula; part of Orion Nebula
+M44  2632  Cnc  08 40.1  19 59   4.0  95.0        OCl      0.5  Praesepe, Beehive Cluster
+M45  1432  Tau  03 47.0  24 07   1.4  110.0       OCl      0.4  Subaru, Pleiades, Seven Sisters
+M46  2437  Pup  07 41.8 -14 49   6.5  27.0        OCl      5.4
+M47  2422  Pup  07 36.6 -14 30   4.5  30.0        OCl      1.6
+M48  2548  Hya  08 13.8 -05 48   5.5  54.0        OCl      1.5
+M49  4472  Vir  12 29.8  08 00  10.0  9 x 7.5     Gal  60000
+M50  2323  Mon  07 03.2 -08 20   7.0  16.0        OCl      3
+M51  5194  CVn  13 29.9  47 12   8.0  11 x 7      Gal  37000    Whirlpool Galaxy
+M52  7654  Cas  23 24.2  61 35   8.0  13.0        OCl      7
+M53  5024  Com  13 12.9  18 10   8.5  12.6        GCl     56
+M54  6715  Sgr  18 55.1 -30 29   8.5  9.1         GCl     83
+M55  6809  Sgr  19 40.0 -30 58   7.0  19.0        GCl     17
+M56  6779  Lyr  19 16.6  30 11   9.5  7.1         GCl     32
+M57  6720  Lyr  18 53.6  33 02   9.5  1.4 x 1.0   PlN      4.1  Ring Nebula
+M58  4579  Vir  12 37.7  11 49  11.0  5.5 x 4.5   Gal  60000
+M59  4621  Vir  12 42.0  11 39  11.5  5 x 3.5     Gal  60000
+M60  4649  Vir  12 43.7  11 33  10.5  7 x 6       Gal  60000
+M61  4303  Vir  12 21.9  04 28  10.5  6 x 5.5     Gal  60000
+M62  6266  Oph  17 01.2 -30 07   8.0  14.1        GCl     22
+M63  5055  CVn  13 15.8  42 02   8.5  10 x 6      Gal  37000    Sunflower Galaxy
+M64  4826  Com  12 56.7  21 41   9.0  9.3 x 5.4   Gal  12000    Blackeye Galaxy
+M65  3623  Leo  11 18.9  13 05  10.5  8 x 1.5     Gal  35000
+M66  3627  Leo  11 20.2  12 59  10.0  8 x 2.5     Gal  35000
+M67  2682  Cnc  08 50.4  11 49   7.5  30.0        OCl      2.25
+M68  4590  Hya  12 39.5 -26 45   9.0  12.0        GCl     32
+M69  6637  Sgr  18 34.4 -32 21   9.0  7.1         GCl     25
+M70  6681  Sgr  18 43.2 -32 18   9.0  7.8         GCl     28
+M71  6838  Sge  19 53.8  18 47   8.5  7.2         GCl     12
+M72  6981  Aqr  20 53.5 -12 32  10.0  5.9         GCl     53
+M73  6994  Aqr  20 58.9 -12 38   9.0  2.8         
+M74   628  Psc  01 36.7  15 47  10.5  10.2 x 9.5  Gal  35000
+M75  6864  Sgr  20 06.1 -21 55   9.5  6.0         GCl     58
+M76   650  Per  01 42.4  51 34  12.0  2.7 x 1.8   PlN      3.4  Little Dumbbell Nebula, Cork Nebula
+M77  1068  Cet  02 42.7 -00 01  10.5  7 x 6       Gal  60000
+M78  2068  Ori  05 46.7  00 03   8.0  8 x 6       DfN      1.6
+M79  1904  Lep  05 24.5 -24 33   8.5  8.7         GCl     40
+M80  6093  Sco  16 17.0 -22 59   8.5  8.9         GCl     27
+M81  3031  UMa  09 55.6  69 04   8.5  21 x 10     Gal  11000    Bode's Galaxy
+M82  3034  UMa  09 55.8  69 41   9.5  9 x 4       Gal  11000    Cigar Galaxy
+M83  5236  Hya  13 37.0 -29 52   8.5  11 x 10     Gal  10000    Southern Pinwheel Galaxy
+M84  4374  Vir  12 25.1  12 53  11.0  5.0         Gal  60000
+M85  4382  Com  12 25.4  18 11  10.5  7.1 x 5.2   Gal  60000
+M86  4406  Vir  12 26.2  12 57  11.0  7.5 x 5.5   Gal  60000
+M87  4486  Vir  12 30.8  12 24  11.0  7.0         Gal  60000    Virgo A
+M88  4501  Com  12 32.0  14 25  11.0  7 x 4       Gal  60000
+M89  4552  Vir  12 35.7  12 33  11.5  4.0         Gal  60000
+M90  4569  Vir  12 36.8  13 10  11.0  9.5 x 4.5   Gal  60000
+M91  4548  Com  12 35.4  14 30  11.5  5.4 x 4.4   Gal  60000
+M92  6341  Her  17 17.1  43 08   7.5  11.2        GCl     26
+M93  2447  Pup  07 44.6 -23 52   6.5  22.0        OCl      4.5
+M94  4736  CVn  12 50.9  41 07   9.5  7 x 3       Gal  14500
+M95  3351  Leo  10 44.0  11 42  11.0  4.4 x 3.3   Gal  38000
+M96  3368  Leo  10 46.8  11 49  10.5  6 x 4       Gal  38000
+M97  3587  UMa  11 14.8  55 01  12.0  3.4 x 3.3   PlN      2.6  Owl Nebula
+M98  4192  Com  12 13.8  14 54  11.0  9.5 x 3.2   Gal  60000
+M99  4254  Com  12 18.8  14 25  10.5  5.4 x 4.8   Gal  60000
+M100  4321  Com  12 22.9  15 49  10.5  7 x 6       Gal  60000
+M101  5457  UMa  14 03.3  54 21   8.5  22.0        Gal  24000    Pinwheel Galaxy
+M102  5866  Dra  15 06.5  55 45  10.5  5.2 x 2.3   Gal  40000    Spindle Galaxy
+M103   581  Cas  01 33.2  60 42   7.0  6.0         OCl      8
+M104  4594  Vir  12 40.0 -11 37   9.5  9 x 4       Gal  50000    Sombrero Galaxy
+M105  3379  Leo  10 47.8  12 35  11.0  2.0         Gal  38000
+M106  4258  CVn  12 19.0  47 18   9.5  19 x 8      Gal  25000
+M107  6171  Oph  16 32.5 -13 03  10.0  10.0        GCl     20
+M108  3556  UMa  11 11.5  55 40  11.0  8 x 1       Gal  45000
+M109  3992  UMa  11 57.6  53 23  11.0  7 x 4       Gal  55000
+M110   205  And  00 40.4  41 41  10.0  17 x 10     Gal   2200

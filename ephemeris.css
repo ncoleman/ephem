@@ -28,7 +28,7 @@ div#input, div#output {
     width: 45%;
     border: 1px solid gray;
     background: #fafafa;
-    padding: 1em;
+    padding: 0em;
     margin: 0px;
 }
 
@@ -44,11 +44,20 @@ div#output{
     background: white;
 }
 
+#input table {
+	font-size: 90%;
+	border: none;
+	margin: none;
+	padding: none;
+}
+
 #output table {
 	font-size: 90%;
 	border: 1px solid gray;
 	margin-top: 1em;
+	padding: 1em;
 }
+
 
 #output th {
     text-decoration: none;

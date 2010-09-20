@@ -1,11 +1,17 @@
 DONE
 ====
 
+*   09/14/2010  added ability to display either alt/az or ra/dec.
 *   09/15/2010  added sortable table columns
+*   09/15/2010  added ability to exclude objects below the horizon from the
+results.
+*   09/18/2010  added Constellations to the output
 
 
 TODO
 ====
 
+*   Fix up all header tags to be compliant
+
 *   DONE Allow for output sorting on various fields NJC 09/15/2010 
-*   Have an option to exclude from output anything below the horizon 09/15/2010  
+*   DONE Have an option to exclude from output anything below the horizon 09/15/2010  

@@ -56,9 +56,11 @@ params = {
     'mars' : None,
     'jupiter' : None,
     'saturn' : None,
-    'altaz' : True
+    'altaz' : True,
+    'above_horiz' : False
 }
 
+booleans = ('processed', 'now', 'utc', 'save', 'altaz', 'above_horiz')
 
 def main():
     cgitb.enable()
@@ -94,8 +96,9 @@ def main():
         pass
 
     # do POST processing
-    if form.has_key('processed'):                   # then this is the result of a POST
-        for key in form.keys():                     # fill in params for any values POSTed
+    #if form.has_key('processed'):                   # then this is the result of a POST
+    if 'processed' in form:
+        for key in form:
             params[key] = form.getvalue(key)
         params['star'] = form.getlist('star')                 # except that star is a special case
         if form.has_key('clear'):
@@ -117,7 +120,7 @@ def main():
     #  fill in any blanks
     _date = datetime.utcnow().timetuple()[:5]
     i = 0
-    for key in ['year', 'month', 'day', 'hour', 'minute']:
+    for key in ('year', 'month', 'day', 'hour', 'minute'):
         if not params[key]:
             params[key] = _date[i]
         i += 1
@@ -127,18 +130,18 @@ def main():
     # so I moved validation outside of form processing and now it is done for everything.
 
     # tidy up the booleans
-    for key in ['processed', 'now', 'utc', 'save', 'altaz']:
+    for key in booleans:
         value = params[key]
-        if value == 'True' or value == 'UTC' or value == 'now':
+        if value in ('True', 'UTC', 'now'):
             params[key] = True
-        if value == 'None' or value == '' or value == 'False':
+        if value in ('None', '', 'False'):
             params[key] = False
     # tidy up the floats
-    for key in ['elev', 'temp', 'pressure']:
-        try:
-            params[key] = float(params[key])
+    for key in ('elev', 'temp', 'pressure'):
+        try:                                        # if it can be made a float,
+            params[key] = float(params[key])        # do it
         except:
-            pass
+            pass                                    # else, don't do it.
     
     # do form processing
     if params['processed']:
@@ -155,10 +158,10 @@ def main():
                 else:
                     params['year'], params['month'], params['day'], params['hour'], params['minute'] = getLocalDateTime(_date)[:5]
 
-            for key in ['minute', 'hour', 'day', 'month', 'year']:
+            for key in ('minute', 'hour', 'day', 'month', 'year'):
                 params[key] = int(params[key])          # tidy up params to correct type
             setUTCDate()
-            for key in ['temp', 'pressure', 'elev']:
+            for key in ('temp', 'pressure', 'elev'):
                 try:
                     if params[key]:      # tidy to correct type *if it exists*
                         params[key] = float(params[key])
@@ -183,9 +186,12 @@ def main():
         print "<p>For time:  <br />%s Local <br />%s UTC <br />Timezone: %s<br />Location:  %s, lat %s long %s,<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]),  home.date, params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
         altaz = params['altaz'] and ('Altitude', 'Azimuth') or ('RA', 'Dec')
         print 'Times are %s. Click column heading to sort.' % (params['utc'] and 'UTC' or 'local')
-        print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Direction</th><th>Magnitude</th><th>Phase</th><th>Rise</th><th>Set</th></tr>' % (altaz)
-        format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td> %3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td></tr>'
-        for body in ['sun','moon','mercury','venus','mars','jupiter','saturn']:
+        print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th></tr>' % (altaz)
+        format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td></tr>'
+        for body in ('sun','moon','mercury','venus','mars','jupiter','saturn'):
+            params[body].compute(home)
+            if params['above_horiz'] and params[body].alt < 0:
+                continue
             if params['utc']:
                 rtime = home.next_rising(params[body]).tuple()
                 stime = home.next_setting(params[body]).tuple()
@@ -196,15 +202,15 @@ def main():
             settime = '%02.0f:%02.0f' % (stime[3], stime[4])
             params[body].compute(home)
             altazradec = params['altaz'] and (params[body].alt, params[body].az) or (params[body].ra, params[body].dec)
-            print format % (body.capitalize(), roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(params[body].az), params[body].mag, params[body].phase, risetime, settime)
+            print format % (body.capitalize(), roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(params[body].az), ephem.constellation(params[body])[1][:6], params[body].mag, params[body].phase, risetime, settime)
         print """</table>"""
-        print '<table class="sortable" id="results_stars" ><tr><th>Star</th><th>%s</th><th>%s</th><th>Direction</th><th>Magnitude</th><th>Rise</th><th>Set</th></tr>' % altaz
+        print '<table class="sortable" id="results_stars" ><tr><th>Star</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Rise</th><th>Set</th></tr>' % altaz
         stars = []
         for s in params['star']:
             stars.append(ephem.star(s))
         for s in stars:
             s.compute(home)
-            if s.alt < 0:                                   # only bother if star is above the horizon (TODO make this an option)
+            if params['above_horiz'] and s.alt < 0:                                   # only bother if star is above the horizon 
                 continue
             try:
                 if params['utc']:
@@ -220,8 +226,9 @@ def main():
                 settime = -1
             s.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (s.name, roundAngle(s.az), roundAngle(s.alt), s.mag)
-            format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td> %3s</td><td>%.0f</td><td>%s</td><td>%s</td></tr>'
-            print format % (s.name, roundAngle(s.alt), roundAngle(s.az), azDirection(s.az), s.mag, risetime, settime)
+            altazradec = params['altaz'] and (s.alt, s.az) or (s.ra, s.dec)
+            format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td></tr>'
+            print format % (s.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(s.az), ephem.constellation(s)[1][:6], s.mag, risetime, settime)
         print '</table>'
         tock = datetime.now()
         print "<p><small>Done in %s.</small></p>" % ( tock - tick)
@@ -288,7 +295,7 @@ def renderHTMLHead():
         <link rel=\"stylesheet\" href=\"ephemeris.css\" type=\"text/css\" />
         <script type="text/javascript" src="js/sortable.js"></script>
         <title>Ephemeris</title>
-    </head><body><div id="content"><a name="top"></a><h2>Ephemeris</h2><p><a href="#intro">Introduction</a> and help.</p>"""
+    </head><body><div id="content"><a name="top"></a><a href="/">Home</a><h2>Ephemeris</h2><p><a href="#intro">Introduction</a> and help.</p>"""
 
 
 def renderHTMLFooter():
@@ -309,7 +316,7 @@ def setCookies(clear=False):
         expire = -1                                  # 
     else:
         expire = 63072000                           # 2 years in seconds
-    for key in ['hour', 'minute', 'day', 'month', 'year', 'now', 'utc', 'tzname', 'city', 'lat', 'long', 'save']: 
+    for key in ('hour', 'minute', 'day', 'month', 'year', 'now', 'utc', 'tzname', 'city', 'lat', 'long', 'save'): 
         cookie[key] = params[key]
         cookie[key]['path'] = '/ephem'
         if params[key]:                             # avoid None or False params
@@ -398,7 +405,7 @@ def renderForm():
     print"""<div id="input">
     <form action="/ephem/index.cgi" method="POST">
     <fieldset><legend><b>Time & Date</b></legend>
-    <table border="0" cellspacing="10" cellpadding="0">
+    <table name="date_table">
     <tr align="center"><td>hour</td><td>minute</td><td>day</td><td>month</td><td>year</td><td> </td><td>Now</td></tr>
     <tr align="right"><td><select name="hour" onfocus="uncheckNow()">"""
     hours = ''
@@ -409,7 +416,7 @@ def renderForm():
             hours += '<option value="' + str(h) + '" >' + str(h) + '</option>'
     print hours
     print "</select></td> "
-    print '<td><select name="minute" onfocus="uncheckNow()">'
+    print '<td>:<select name="minute" onfocus="uncheckNow()">'
     minutes = ''
     for m in range(0,60):
         if str(m) == str(params['minute']):
@@ -427,7 +434,7 @@ def renderForm():
             days += '<option value="' + str(d) + '" >' + str(d) + '</option>'
     print days
     print "</select></td>"
-    print '<td><select name="month" onfocus="uncheckNow()">'
+    print '<td>/<select name="month" onfocus="uncheckNow()">'
     months = ''
     for m in range(1,13):
         if str(m) == str(params['month']):
@@ -440,12 +447,16 @@ def renderForm():
         checked = ( 'checked')
     else:
         checked = ( '')
-    print '<td><input type="text" name="year" value="%s" size="5" onfocus="uncheckNow()" /></td><td> or  </td><td><input type="checkbox" name="now" value="True" %s /></td></tr></table><br />' % (params['year'], checked)
+    print '<td>/<input type="text" name="year" value="%s" size="5" onfocus="uncheckNow()" /></td><td> or  </td><td><input type="checkbox" name="now" value="True" %s /></td></tr></table><br />' % (params['year'], checked)
     if params['utc']:
         checked = ('checked', '')
     else:
         checked = ('', 'checked')
-    print ' UTC <input type="radio" name="utc" value="True" %s /><br />Local <input type="radio" name="utc" value="False" %s /> ' % checked
+    print """
+    <table style="display: inline; margin: 0px; padding: 0px;">
+    <tr><td>UTC</td><td><input type="radio" name="utc" value="True" %s /></td></tr>
+    <tr><td>Local</td><td><input type="radio" name="utc" value="False" %s /></td></tr>
+    </table>""" % checked
     print 'Timezone: <select name="tzname">'
     if params['utc']:
         zones = '<option value ="UTC" selected>UTC</option>'
@@ -506,13 +517,18 @@ def renderForm():
         else:
             stars += '<option value=\"' + s + '\">' + s + '</option>'
     print stars
+    if params['altaz']:
+        checked = ('checked','')
+    else:
+        checked = ('', 'checked')
     print """</select></fieldset></fieldset>
     <fieldset><legend>Results</legend>
-    Display results in Alt/Az<input type="radio" name="altaz" value="True" checked />
-     RA/Dec<input type="radio" name="altaz" value="False"  />
+    Display results in Alt/Az<input type="radio" name="altaz" value="True" %s />
+     RA/Dec<input type="radio" name="altaz" value="False" %s />
+     Only objects above horizon?<input type="checkbox" name="above_horiz" value="True" %s />
     </fieldset>
     <fieldset><legend><b>Go</b></legend>
-    <input type="hidden" name="processed" value="True" />"""
+    <input type="hidden" name="processed" value="True" />""" % ( checked + (params['above_horiz'] and 'checked' or '',))
     if params['save'] or not params['processed']:
         checked = 'checked'
     else:

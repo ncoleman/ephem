@@ -7,11 +7,14 @@ DONE
 results.
 *   09/18/2010  added Constellations to the output
 *   09/20/2010  validated as strict XHTML 1.0
+*   09/20/2010  added Messiers capability
 
 
 TODO
 ====
 
+*   fix up formatting for the input form, spec. remove tables and change it to
+use CSS.
 *   DONE Fix up all header tags to be compliant
 *   DONE Allow for output sorting on various fields NJC 09/15/2010 
 *   DONE Have an option to exclude from output anything below the horizon 09/15/2010  

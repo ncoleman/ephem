@@ -1,6 +1,7 @@
 #!/home/nickcoleman/local/bin/python
 #coding=utf-8
 
+from __future__ import with_statement
 import cgi, cgitb
 import os
 import Cookie
@@ -10,13 +11,7 @@ import ephem
 import pytz
 
 #   config variables
-doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-baseurl = 'http://www.nickcoleman.org/ephem'
-language = 'en'
-keywords = 'ephemeris xephem pyephem python star sun moon'
-content = 'web based ephemeris generated using python and pyephem'
-title = 'Ephemeris'
-handy = ''                                  # a handy string available anywhere.  I use it for debugging.
+messierdb = 'Messier.edb'
 # end config
 
 # params notes:  
@@ -48,6 +43,7 @@ params = {
     'temp' : None, 
     'pressure' : None,
     'star' : [],
+    'messier' : [],
     'body' : None,
     'sun' : None,
     'moon' : None,
@@ -57,7 +53,8 @@ params = {
     'jupiter' : None,
     'saturn' : None,
     'altaz' : True,
-    'above_horiz' : False
+    'above_horiz' : False,
+    'minmag' : 99.0
 }
 
 booleans = ('processed', 'now', 'utc', 'save', 'altaz', 'above_horiz')
@@ -101,6 +98,7 @@ def main():
         for key in form:
             params[key] = form.getvalue(key)
         params['star'] = form.getlist('star')                 # except that star is a special case
+        params['messier'] = form.getlist('messier')                 # except that messier is a special case
         if form.has_key('clear'):
             setCookies(clear=True)
         
@@ -137,7 +135,7 @@ def main():
         if value in ('None', '', 'False'):
             params[key] = False
     # tidy up the floats
-    for key in ('elev', 'temp', 'pressure'):
+    for key in ('elev', 'temp', 'pressure', 'minmag'):
         try:                                        # if it can be made a float,
             params[key] = float(params[key])        # do it
         except:
@@ -161,7 +159,7 @@ def main():
             for key in ('minute', 'hour', 'day', 'month', 'year'):
                 params[key] = int(params[key])          # tidy up params to correct type
             setUTCDate()
-            for key in ('temp', 'pressure', 'elev'):
+            for key in ('temp', 'pressure', 'elev', 'minmag'):
                 try:
                     if params[key]:      # tidy to correct type *if it exists*
                         params[key] = float(params[key])
@@ -204,6 +202,7 @@ def main():
             altazradec = params['altaz'] and (params[body].alt, params[body].az) or (params[body].ra, params[body].dec)
             print format % (body.capitalize(), roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(params[body].az), ephem.constellation(params[body])[1][:6], params[body].mag, params[body].phase, risetime, settime)
         print """</table>"""
+
         print '<table class="sortable" id="results_stars" ><tr><th>Star</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Rise</th><th>Set</th></tr>' % altaz
         stars = []
         for s in params['star']:
@@ -211,6 +210,8 @@ def main():
         for s in stars:
             s.compute(home)
             if params['above_horiz'] and s.alt < 0:                                   # only bother if star is above the horizon 
+                continue
+            if params['minmag'] and s.mag > params['minmag']:                       # only bother if star is brighter than ( < ) X
                 continue
             try:
                 if params['utc']:
@@ -230,6 +231,36 @@ def main():
             format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td></tr>'
             print format % (s.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(s.az), ephem.constellation(s)[1][:6], s.mag, risetime, settime)
         print '</table>'
+
+        print '<table class="sortable" id="results_messiers" ><tr><th>Messier</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % altaz
+        messiers = []
+        for m in params['messier']:
+            messiers.append(ephem.readdb(getMessierEdb(m.split()[0])))
+        for m in messiers:
+            m.compute(home)
+            if params['above_horiz'] and m.alt < 0:                                   # only bother if star is above the horizon 
+                continue
+            if params['minmag'] and m.mag > params['minmag']:
+                continue
+            try:
+                if params['utc']:
+                    rtime = home.next_rising(m).tuple()
+                    stime = home.next_setting(m).tuple()
+                else:
+                    rtime = getLocalDateTime(home.next_rising(m).tuple())
+                    stime = getLocalDateTime(home.next_setting(m).tuple())
+                risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
+                settime = '%02.0f:%02.0f' % (stime[3], stime[4])
+            except (ValueError):                                # either never sets or never rises
+                risetime = -1
+                settime = -1
+            m.compute(home)
+            #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (m.name, roundAngle(m.az), roundAngle(m.alt), m.mag)
+            altazradec = params['altaz'] and (m.alt, m.az) or (m.ra, m.dec)
+            format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+            print format % (m.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(m.az), ephem.constellation(m)[1][:6], float(m.mag), risetime, settime, roundAngle(m.transit_alt))
+        print '</table>'
+            
         tock = datetime.now()
         print "<p><small>Done in %s.</small></p>" % ( tock - tick)
     print """</div><!-- output -->
@@ -291,7 +322,7 @@ def renderHTMLHead():
         <head>
             <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
             <meta name="keywords" content="ephemeris xephem python" />
-            <meta name="description" content="web based ephemeris written in Python using the pyephem"/>
+            <meta name="description" content="web based ephemeris written in Python using the pyephem" />
             <script type="text/javascript">
                 function uncheckNow() {
                     var elements = document.getElementsByName('now');
@@ -342,10 +373,10 @@ def validateParams():
         valid = True
         validateMsg = ''
         # 00:00:00 or 00.0000
-        if params['lat'] and not re.match(r'^([0-9]{1,3}(:[0-9]{1,3})+)|([0-9]*.[0-9]*)$',params['lat']):
+        if params['lat'] and not re.match(r'^[+-]?([0-9]{1,3}(:[0-9]{1,3})+)|([0-9]*.[0-9]*)$',params['lat']):
             validateMsg += r'<p class="error">Latitude invalid.</p>'
             valid = False
-        if params['long'] and not re.match(r'^([0-9]{1,3}(:[0-9]{1,3})+)|([0-9]*.[0-9]*)$',params['long']):
+        if params['long'] and not re.match(r'^[-+]?([0-9]{1,3}(:[0-9]{1,3})+)|([0-9]*.[0-9]*)$',params['long']):
             validateMsg += r'<p class="error">Longitute invalid.</p>'
             valid = False
         # -/+ any 3 digit number plus floating part
@@ -363,11 +394,14 @@ def validateParams():
         if params['year'] and not re.match(r'^[0-9]{3,4}$', params['year']):
             validateMsg += r'<p class="error">Year %s is invalid</p>' % params['year']
             valid = False
+        if params['minmag'] and not re.match(r'^[+-]?[0-9]{1,2}(\.[0-9]*)*$', str(params['minmag'])):
+            validateMsg += r'<p class="error">Brighter than magnitude %s is invalid</p>' % params['minmag']
         return valid, validateMsg
 
     def validateRelationships():
         valid = True
         validateMsg = ''
+        # NB pyEphem can handle invalid date like 30/2; it changes it to 2/3.
         if params['month'] in (4,6,9,11):
             if params['day'] > 30:
                 validateMsg += r'<p class="error">Day: %s is not a valid day for that month $s.</p>' % (params['day'], params['month'])
@@ -387,6 +421,9 @@ def validateParams():
             valid = False
         if params['pressure'] and not (900 < params['pressure'] < 1100):
             validateMsg += r'<p class="error">Pressure: %s is out of the allowed pressure range of 900 mB to 1100mB.</p>' % params['temp']
+            valid = False
+        if params['minmag'] and not (-30 < params['minmag'] < 20):
+            validateMsg += r'<p class="error">minmag: %s is out of the allowed minmagerature range of -30 to +20. </p>' % params['minmag']
             valid = False
         return valid, validateMsg
 
@@ -409,6 +446,7 @@ def renderForm():
     tz_list = ( 'US/Alaska', 'US/Arizona', 'US/Central', 'US/Eastern', 'US/Hawaii', 'US/Mountain', 'US/Pacific', 'Africa/Abidjan', 'Africa/Accra', 'Africa/Addis_Ababa', 'Africa/Algiers', 'Africa/Asmara', 'Africa/Bamako', 'Africa/Bangui', 'Africa/Banjul', 'Africa/Bissau', 'Africa/Blantyre', 'Africa/Brazzaville', 'Africa/Bujumbura', 'Africa/Cairo', 'Africa/Casablanca', 'Africa/Ceuta', 'Africa/Conakry', 'Africa/Dakar', 'Africa/Dar_es_Salaam', 'Africa/Djibouti', 'Africa/Douala', 'Africa/El_Aaiun', 'Africa/Freetown', 'Africa/Gaborone', 'Africa/Harare', 'Africa/Johannesburg', 'Africa/Kampala', 'Africa/Khartoum', 'Africa/Kigali', 'Africa/Kinshasa', 'Africa/Lagos', 'Africa/Libreville', 'Africa/Lome', 'Africa/Luanda', 'Africa/Lubumbashi', 'Africa/Lusaka', 'Africa/Malabo', 'Africa/Maputo', 'Africa/Maseru', 'Africa/Mbabane', 'Africa/Mogadishu', 'Africa/Monrovia', 'Africa/Nairobi', 'Africa/Ndjamena', 'Africa/Niamey', 'Africa/Nouakchott', 'Africa/Ouagadougou', 'Africa/Porto-Novo', 'Africa/Sao_Tome', 'Africa/Tripoli', 'Africa/Tunis', 'Africa/Windhoek', 'America/Adak', 'America/Anchorage', 'America/Anguilla', 'America/Antigua', 'America/Araguaina', 'America/Argentina/Buenos_Aires', 'America/Argentina/Catamarca', 'America/Argentina/Cordoba', 'America/Argentina/Jujuy', 'America/Argentina/La_Rioja', 'America/Argentina/Mendoza', 'America/Argentina/Rio_Gallegos', 'America/Argentina/Salta', 'America/Argentina/San_Juan', 'America/Argentina/San_Luis', 'America/Argentina/Tucuman', 'America/Argentina/Ushuaia', 'America/Aruba', 'America/Asuncion', 'America/Atikokan', 'America/Bahia', 'America/Bahia_Banderas', 'America/Barbados', 'America/Belem', 'America/Belize', 'America/Blanc-Sablon', 'America/Boa_Vista', 'America/Bogota', 'America/Boise', 'America/Cambridge_Bay', 'America/Campo_Grande', 'America/Cancun', 'America/Caracas', 'America/Cayenne', 'America/Cayman', 'America/Chicago', 'America/Chihuahua', 'America/Costa_Rica', 'America/Cuiaba', 'America/Curacao', 'America/Danmarkshavn', 'America/Dawson', 'America/Dawson_Creek', 'America/Denver', 'America/Detroit', 'America/Dominica', 'America/Edmonton', 'America/Eirunepe', 'America/El_Salvador', 'America/Fortaleza', 'America/Glace_Bay', 'America/Godthab', 'America/Goose_Bay', 'America/Grand_Turk', 'America/Grenada', 'America/Guadeloupe', 'America/Guatemala', 'America/Guayaquil', 'America/Guyana', 'America/Halifax', 'America/Havana', 'America/Hermosillo', 'America/Indiana/Indianapolis', 'America/Indiana/Knox', 'America/Indiana/Marengo', 'America/Indiana/Petersburg', 'America/Indiana/Tell_City', 'America/Indiana/Vevay', 'America/Indiana/Vincennes', 'America/Indiana/Winamac', 'America/Inuvik', 'America/Iqaluit', 'America/Jamaica', 'America/Juneau', 'America/Kentucky/Louisville', 'America/Kentucky/Monticello', 'America/La_Paz', 'America/Lima', 'America/Los_Angeles', 'America/Maceio', 'America/Managua', 'America/Manaus', 'America/Martinique', 'America/Matamoros', 'America/Mazatlan', 'America/Menominee', 'America/Merida', 'America/Mexico_City', 'America/Miquelon', 'America/Moncton', 'America/Monterrey', 'America/Montevideo', 'America/Montreal', 'America/Montserrat', 'America/Nassau', 'America/New_York', 'America/Nipigon', 'America/Nome', 'America/Noronha', 'America/North_Dakota/Center', 'America/North_Dakota/New_Salem', 'America/Ojinaga', 'America/Panama', 'America/Pangnirtung', 'America/Paramaribo', 'America/Phoenix', 'America/Port-au-Prince', 'America/Port_of_Spain', 'America/Porto_Velho', 'America/Puerto_Rico', 'America/Rainy_River', 'America/Rankin_Inlet', 'America/Recife', 'America/Regina', 'America/Resolute', 'America/Rio_Branco', 'America/Santa_Isabel', 'America/Santarem', 'America/Santiago', 'America/Santo_Domingo', 'America/Sao_Paulo', 'America/Scoresbysund', 'America/St_Johns', 'America/St_Kitts', 'America/St_Lucia', 'America/St_Thomas', 'America/St_Vincent', 'America/Swift_Current', 'America/Tegucigalpa', 'America/Thule', 'America/Thunder_Bay', 'America/Tijuana', 'America/Toronto', 'America/Tortola', 'America/Vancouver', 'America/Whitehorse', 'America/Winnipeg', 'America/Yakutat', 'America/Yellowknife', 'Antarctica/Casey', 'Antarctica/Davis', 'Antarctica/DumontDUrville', 'Antarctica/Macquarie', 'Antarctica/Mawson', 'Antarctica/McMurdo', 'Antarctica/Palmer', 'Antarctica/Rothera', 'Antarctica/Syowa', 'Antarctica/Vostok', 'Asia/Aden', 'Asia/Almaty', 'Asia/Amman', 'Asia/Anadyr', 'Asia/Aqtau', 'Asia/Aqtobe', 'Asia/Ashgabat', 'Asia/Baghdad', 'Asia/Bahrain', 'Asia/Baku', 'Asia/Bangkok', 'Asia/Beirut', 'Asia/Bishkek', 'Asia/Brunei', 'Asia/Choibalsan', 'Asia/Chongqing', 'Asia/Colombo', 'Asia/Damascus', 'Asia/Dhaka', 'Asia/Dili', 'Asia/Dubai', 'Asia/Dushanbe', 'Asia/Gaza', 'Asia/Harbin', 'Asia/Ho_Chi_Minh', 'Asia/Hong_Kong', 'Asia/Hovd', 'Asia/Irkutsk', 'Asia/Jakarta', 'Asia/Jayapura', 'Asia/Jerusalem', 'Asia/Kabul', 'Asia/Kamchatka', 'Asia/Karachi', 'Asia/Kashgar', 'Asia/Kathmandu', 'Asia/Kolkata', 'Asia/Krasnoyarsk', 'Asia/Kuala_Lumpur', 'Asia/Kuching', 'Asia/Kuwait', 'Asia/Macau', 'Asia/Magadan', 'Asia/Makassar', 'Asia/Manila', 'Asia/Muscat', 'Asia/Nicosia', 'Asia/Novokuznetsk', 'Asia/Novosibirsk', 'Asia/Omsk', 'Asia/Oral', 'Asia/Phnom_Penh', 'Asia/Pontianak', 'Asia/Pyongyang', 'Asia/Qatar', 'Asia/Qyzylorda', 'Asia/Rangoon', 'Asia/Riyadh', 'Asia/Sakhalin', 'Asia/Samarkand', 'Asia/Seoul', 'Asia/Shanghai', 'Asia/Singapore', 'Asia/Taipei', 'Asia/Tashkent', 'Asia/Tbilisi', 'Asia/Tehran', 'Asia/Thimphu', 'Asia/Tokyo', 'Asia/Ulaanbaatar', 'Asia/Urumqi', 'Asia/Vientiane', 'Asia/Vladivostok', 'Asia/Yakutsk', 'Asia/Yekaterinburg', 'Asia/Yerevan', 'Atlantic/Azores', 'Atlantic/Bermuda', 'Atlantic/Canary', 'Atlantic/Cape_Verde', 'Atlantic/Faroe', 'Atlantic/Madeira', 'Atlantic/Reykjavik', 'Atlantic/South_Georgia', 'Atlantic/St_Helena', 'Atlantic/Stanley', 'Australia/Adelaide', 'Australia/Brisbane', 'Australia/Broken_Hill', 'Australia/Currie', 'Australia/Darwin', 'Australia/Eucla', 'Australia/Hobart', 'Australia/Lindeman', 'Australia/Lord_Howe', 'Australia/Melbourne', 'Australia/Perth', 'Australia/Sydney', 'Canada/Atlantic', 'Canada/Central', 'Canada/Eastern', 'Canada/Mountain', 'Canada/Newfoundland', 'Canada/Pacific', 'Europe/Amsterdam', 'Europe/Andorra', 'Europe/Athens', 'Europe/Belgrade', 'Europe/Berlin', 'Europe/Brussels', 'Europe/Bucharest', 'Europe/Budapest', 'Europe/Chisinau', 'Europe/Copenhagen', 'Europe/Dublin', 'Europe/Gibraltar', 'Europe/Helsinki', 'Europe/Istanbul', 'Europe/Kaliningrad', 'Europe/Kiev', 'Europe/Lisbon', 'Europe/London', 'Europe/Luxembourg', 'Europe/Madrid', 'Europe/Malta', 'Europe/Minsk', 'Europe/Monaco', 'Europe/Moscow', 'Europe/Oslo', 'Europe/Paris', 'Europe/Prague', 'Europe/Riga', 'Europe/Rome', 'Europe/Samara', 'Europe/Simferopol', 'Europe/Sofia', 'Europe/Stockholm', 'Europe/Tallinn', 'Europe/Tirane', 'Europe/Uzhgorod', 'Europe/Vaduz', 'Europe/Vienna', 'Europe/Vilnius', 'Europe/Volgograd', 'Europe/Warsaw', 'Europe/Zaporozhye', 'Europe/Zurich', 'GMT', 'Indian/Antananarivo', 'Indian/Chagos', 'Indian/Christmas', 'Indian/Cocos', 'Indian/Comoro', 'Indian/Kerguelen', 'Indian/Mahe', 'Indian/Maldives', 'Indian/Mauritius', 'Indian/Mayotte', 'Indian/Reunion', 'Pacific/Apia', 'Pacific/Auckland', 'Pacific/Chatham', 'Pacific/Chuuk', 'Pacific/Easter', 'Pacific/Efate', 'Pacific/Enderbury', 'Pacific/Fakaofo', 'Pacific/Fiji', 'Pacific/Funafuti', 'Pacific/Galapagos', 'Pacific/Gambier', 'Pacific/Guadalcanal', 'Pacific/Guam', 'Pacific/Honolulu', 'Pacific/Johnston', 'Pacific/Kiritimati', 'Pacific/Kosrae', 'Pacific/Kwajalein', 'Pacific/Majuro', 'Pacific/Marquesas', 'Pacific/Midway', 'Pacific/Nauru', 'Pacific/Niue', 'Pacific/Norfolk', 'Pacific/Noumea', 'Pacific/Pago_Pago', 'Pacific/Palau', 'Pacific/Pitcairn', 'Pacific/Pohnpei', 'Pacific/Port_Moresby', 'Pacific/Rarotonga', 'Pacific/Saipan', 'Pacific/Tahiti', 'Pacific/Tarawa', 'Pacific/Tongatapu', 'Pacific/Wake', 'Pacific/Wallis')
     #city_list = ephem.cities._city_data.keys()     # this doesn't work, cities not found?
     #city_list.sort()
+    messier_list = ( 'M1 Crab Nebula', 'M2', 'M3', 'M4', 'M5', 'M6 Butterfly Cluster', 'M7 Ptolemy\'s Cluster', 'M8 Lagoon Nebula', 'M9', 'M10', 'M11 Wild Duck Cluster', 'M12', 'M13 Hercules Cluster', 'M14', 'M15', 'M16 Eagle Nebula, Star Queen Nebula', 'M17 Omega Nebula, Swan Nebula, Lobster Nebula', 'M18', 'M19', 'M20 Trifid Nebula', 'M21', 'M22', 'M23', 'M24 Delle Caustiche', 'M25', 'M26', 'M27 Dumbbell Nebula', 'M28', 'M29', 'M30', 'M31 Andromeda Galaxy', 'M32', 'M33 Triangulum Galaxy', 'M34', 'M35', 'M36', 'M37', 'M38', 'M39', 'M40 Double Star WNC4', 'M41', 'M42 Orion Nebula', 'M43 de Mairan\'s nebula; part of Orion Nebula', 'M44 Praesepe, Beehive Cluster', 'M45 Subaru, Pleiades, Seven Sisters', 'M46', 'M47', 'M48', 'M49', 'M50', 'M51 Whirlpool Galaxy', 'M52', 'M53', 'M54', 'M55', 'M56', 'M57 Ring Nebula', 'M58', 'M59', 'M60', 'M61', 'M62', 'M63 Sunflower Galaxy', 'M64 Blackeye Galaxy', 'M65', 'M66', 'M67', 'M68', 'M69', 'M70', 'M71', 'M72', 'M73', 'M74', 'M75', 'M76 Little Dumbbell Nebula, Cork Nebula', 'M77', 'M78', 'M79', 'M80', 'M81 Bode\'s Galaxy', 'M82 Cigar Galaxy', 'M83 Southern Pinwheel Galaxy', 'M84', 'M85', 'M86', 'M87 Virgo A', 'M88', 'M89', 'M90', 'M91', 'M92', 'M93', 'M94', 'M95', 'M96', 'M97 Owl Nebula', 'M98', 'M99', 'M100', 'M101 Pinwheel Galaxy', 'M102 Spindle Galaxy', 'M103', 'M104 Sombrero Galaxy', 'M105', 'M106', 'M107', 'M108', 'M109', 'M110')
     print"""<div id="input">
     <form action="/ephem/index.cgi" method="post">
     <fieldset><legend><b>Time &amp; Date</b></legend>
@@ -462,9 +500,9 @@ def renderForm():
     print """
     <table style="display: inline; margin: 0px; padding: 0px;">
     <tr><td>UTC</td><td><input type="radio" name="utc" value="True" %s /></td></tr>
-    <tr><td>Local</td><td><input type="radio" name="utc" value="False" %s /></td></tr>
-    </table>""" % checked
-    print 'Timezone: <select name="tzname">'
+    <tr><td>Local</td><td><input type="radio" name="utc" value="False" %s /></td>
+    """ % checked
+    print '<td>Timezone: <select name="tzname">'
     if params['utc']:
         zones = '<option value ="UTC" selected="selected">UTC</option>'
     else:
@@ -475,7 +513,7 @@ def renderForm():
             checked = "selected"
         zones += '<option value="%s" %s>%s</option>' % (z, checked, z)
     print zones
-    print """</select></fieldset>
+    print """</select></td></tr></table></fieldset>
     <fieldset><legend><b>Location</b></legend>
     <fieldset><legend>Choose a city</legend>
     City:  <select name="city">"""
@@ -511,7 +549,7 @@ def renderForm():
     <input type="checkbox" name="mars" value="True" checked="checked"/> Mars<br />
     <input type="checkbox" name="jupiter" value="True" checked="checked"/> Jupiter<br />
     <input type="checkbox" name="saturn" value="True" checked="checked"/> Saturn<br />
-    </fieldset><fieldset><legend>Stars</legend>
+    </fieldset><fieldset><legend>Stars &amp; Nebulae</legend>
     <small>Multiple selections use the control key</small><br />
     <select name="star" multiple="multiple" > """
     stars = '<option value=""></option>'
@@ -524,18 +562,30 @@ def renderForm():
         else:
             stars += '<option value=\"' + s + '\">' + s + '</option>'
     print stars
+    print '</select><select name="messier" multiple="multiple" >'
+    messiers = '<option value=""></option>'
+    params['messier'] += ''
+    for m in messier_list:
+        for mm in params['messier']:
+            if m == mm:
+                messiers += '<option value=\"' + m + '\" selected="selected">' + m + '</option>'
+                break
+        else:
+            messiers += '<option value=\"' + m + '\">' + m + '</option>'
+    print messiers
+    print '</select> </fieldset></fieldset>'
     if params['altaz']:
         checked = ('checked="checked"','')
     else:
         checked = ('', 'checked="checked"')
-    print """</select></fieldset></fieldset>
-    <fieldset><legend>Results</legend>
+    print """<fieldset><legend>Results</legend>
     Display results in Alt/Az<input type="radio" name="altaz" value="True" %s />
      RA/Dec<input type="radio" name="altaz" value="False" %s />
      Only objects above horizon?<input type="checkbox" name="above_horiz" value="True" %s />
+     Only brighter than<input type="text" value="%s" name="minmag" size="3" />magnitude (lower is brighter)
     </fieldset>
     <fieldset><legend><b>Go</b></legend>
-    <input type="hidden" name="processed" value="True" />""" % ( checked + (params['above_horiz'] and 'checked="checked"' or '',))
+    <input type="hidden" name="processed" value="True" />""" % ( checked + (params['above_horiz'] and 'checked="checked"' or '',) + ((params['minmag'] < 99 and params['minmag' or ''),))
     if params['save'] or not params['processed']:
         checked = 'checked="checked"'
     else:
@@ -573,6 +623,20 @@ def getLocalDateTime(date):
 #    return temp3.timetuple()
     return utc.normalize(utc.localize(datetime(*date)).astimezone(tz)).timetuple()
 
+
+def getMessierEdb(m):
+    # Returns a string giving a Messier edb, or None if not found.  
+    # Note use of with...as syntax obviates need for f.close(): happens automatically when 'with' block exits.
+    edb = None
+    try:
+        with open(messierdb) as f:
+            for line in f:
+                if line.startswith(m):
+                    edb = line
+                    break
+    except:
+        pass
+    return edb
 
 
 def renderHTMLIntro():

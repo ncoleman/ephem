@@ -8,7 +8,7 @@ div#content {
 }
 
 div#forms {
-    width: 95%;
+    width: 98%;
     float: none;
     clear: both;
 }
@@ -25,16 +25,19 @@ div#intro {
 div#input, div#output {
     position: relative;
     float: left;
-    width: 45%;
     border: 1px solid gray;
     background: #fafafa;
     padding: 0em;
     margin: 0px;
 }
 
+div#input {
+	width: 45%;
+}
+
 div#output{
-    width: 49%;
-    float: right;
+    width: 50%;
+    padding-left: 1em;
 }
 
 .error {

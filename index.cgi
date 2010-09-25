@@ -54,7 +54,7 @@ params = {
     'saturn' : None,
     'altaz' : True,
     'above_horiz' : False,
-    'minmag' : 99.0
+    'minmag' : None
 }
 
 booleans = ('processed', 'now', 'utc', 'save', 'altaz', 'above_horiz')
@@ -184,8 +184,8 @@ def main():
         print "<p>For time:  <br />%s Local <br />%s UTC <br />Timezone: %s<br />Location:  %s, lat %s long %s,<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]),  home.date, params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
         altaz = params['altaz'] and ('Altitude', 'Azimuth') or ('RA', 'Dec')
         print 'Times are %s. Click column heading to sort.' % (params['utc'] and 'UTC' or 'local')
-        print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th></tr>' % (altaz)
-        format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td></tr>'
+        print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % (altaz)
+        format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
         for body in ('sun','moon','mercury','venus','mars','jupiter','saturn'):
             params[body].compute(home)
             if params['above_horiz'] and params[body].alt < 0:
@@ -200,10 +200,10 @@ def main():
             settime = '%02.0f:%02.0f' % (stime[3], stime[4])
             params[body].compute(home)
             altazradec = params['altaz'] and (params[body].alt, params[body].az) or (params[body].ra, params[body].dec)
-            print format % (body.capitalize(), roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(params[body].az), ephem.constellation(params[body])[1][:6], params[body].mag, params[body].phase, risetime, settime)
+            print format % (body.capitalize(), roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(params[body].az), ephem.constellation(params[body])[1][:6], params[body].mag, params[body].phase, risetime, settime, roundAngle(params[body].transit_alt))
         print """</table>"""
 
-        print '<table class="sortable" id="results_stars" ><tr><th>Star</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Rise</th><th>Set</th></tr>' % altaz
+        print '<table class="sortable" id="results_stars" ><tr><th>Star</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % altaz
         stars = []
         for s in params['star']:
             stars.append(ephem.star(s))
@@ -228,8 +228,8 @@ def main():
             s.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (s.name, roundAngle(s.az), roundAngle(s.alt), s.mag)
             altazradec = params['altaz'] and (s.alt, s.az) or (s.ra, s.dec)
-            format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td></tr>'
-            print format % (s.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(s.az), ephem.constellation(s)[1][:6], s.mag, risetime, settime)
+            format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+            print format % (s.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(s.az), ephem.constellation(s)[1][:6], s.mag, risetime, settime, roundAngle(s.transit_alt))
         print '</table>'
 
         print '<table class="sortable" id="results_messiers" ><tr><th>Messier</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % altaz
@@ -338,6 +338,15 @@ def renderHTMLHead():
 
 def renderHTMLFooter():
     print """</div><!-- content -->
+        <script type="text/javascript"> 
+        <!--
+            document.write('<img src="/axs/ax.pl?mode=img&ref=');
+            document.write( escape( document.referrer ) );
+            document.write('" height="1" width="1" style="display:none" alt="" />');
+        // -->
+        </script><noscript> 
+            <img src="/axs/ax.pl?mode=img" height="1" width="1" style="display:none" alt="" /> 
+        </noscript> 
         </body></html>"""
 
 
@@ -447,98 +456,152 @@ def renderForm():
     #city_list = ephem.cities._city_data.keys()     # this doesn't work, cities not found?
     #city_list.sort()
     messier_list = ( 'M1 Crab Nebula', 'M2', 'M3', 'M4', 'M5', 'M6 Butterfly Cluster', 'M7 Ptolemy\'s Cluster', 'M8 Lagoon Nebula', 'M9', 'M10', 'M11 Wild Duck Cluster', 'M12', 'M13 Hercules Cluster', 'M14', 'M15', 'M16 Eagle Nebula, Star Queen Nebula', 'M17 Omega Nebula, Swan Nebula, Lobster Nebula', 'M18', 'M19', 'M20 Trifid Nebula', 'M21', 'M22', 'M23', 'M24 Delle Caustiche', 'M25', 'M26', 'M27 Dumbbell Nebula', 'M28', 'M29', 'M30', 'M31 Andromeda Galaxy', 'M32', 'M33 Triangulum Galaxy', 'M34', 'M35', 'M36', 'M37', 'M38', 'M39', 'M40 Double Star WNC4', 'M41', 'M42 Orion Nebula', 'M43 de Mairan\'s nebula; part of Orion Nebula', 'M44 Praesepe, Beehive Cluster', 'M45 Subaru, Pleiades, Seven Sisters', 'M46', 'M47', 'M48', 'M49', 'M50', 'M51 Whirlpool Galaxy', 'M52', 'M53', 'M54', 'M55', 'M56', 'M57 Ring Nebula', 'M58', 'M59', 'M60', 'M61', 'M62', 'M63 Sunflower Galaxy', 'M64 Blackeye Galaxy', 'M65', 'M66', 'M67', 'M68', 'M69', 'M70', 'M71', 'M72', 'M73', 'M74', 'M75', 'M76 Little Dumbbell Nebula, Cork Nebula', 'M77', 'M78', 'M79', 'M80', 'M81 Bode\'s Galaxy', 'M82 Cigar Galaxy', 'M83 Southern Pinwheel Galaxy', 'M84', 'M85', 'M86', 'M87 Virgo A', 'M88', 'M89', 'M90', 'M91', 'M92', 'M93', 'M94', 'M95', 'M96', 'M97 Owl Nebula', 'M98', 'M99', 'M100', 'M101 Pinwheel Galaxy', 'M102 Spindle Galaxy', 'M103', 'M104 Sombrero Galaxy', 'M105', 'M106', 'M107', 'M108', 'M109', 'M110')
+    form = {}
+    checked = 'checked="checked"'                       # used often enough to treat it as a quasi constant
+    selected = 'selected="selected"'
+    hours = ''
+    for h in range(0,24):
+        h_ = str(h)
+        if h_ == str(params['hour']):
+            form['hourchecked'] = selected
+        else:
+            form['hourchecked'] = ''
+        hours = "".join((hours, '<option value="%s" %s >%s</option>' % (h_, form['hourchecked'], h_)))
+    form['hours'] = hours
+    minutes = ''
+    for m in range(0,60):
+        m_ = str(m)
+        if m_ == str(params['minute']):
+            form['minutechecked'] = selected
+        else:
+            form['minutechecked'] = ''
+        minutes = "".join((minutes, '<option value="%s" %s >%s</option>' % (m_, form['minutechecked'], m_)))
+    form['minutes'] = minutes
+    days = ''
+    for d in range(1,32):
+        d_ = str(d)
+        if d_ == str(params['day']):
+            form['daychecked'] = selected
+        else:
+            form['daychecked'] = ''
+        days = "".join((days, '<option value="%s" %s >%s</option>' % (d_, form['daychecked'], d_)))
+    form['days'] = days
+
+    months = ''
+    for m in range(1,13):
+        m_ = str(m)
+        if m_ == str(params['month']):
+            form['monthchecked'] = selected
+        else:
+            form['monthchecked'] = ''
+        months = "".join((months, '<option value="%s" %s >%s</option>' % (m_, form['monthchecked'], m_)))
+    form['months'] = months
+
+    form['year'] = params['year']
+    if params['now']:
+        form['nowchecked'] = checked 
+    else:
+        form['nowchecked'] =  ''
+
+    if params['utc']:
+        form['utcchecked'] = checked
+        form['localchecked'] = ''
+        zones = '<option value ="UTC" selected="selected">UTC</option>'
+    else:
+        form['utcchecked'] = ''
+        form['localchecked'] = checked
+        zones = '<option value ="UTC">UTC</option>'
+
+    for z in tz_list:
+        if params['tzname'] and z == params['tzname']:
+            form['tzchecked'] = 'selected="selected"'
+        else:
+            form['tzchecked'] = ''
+        zones = "".join((zones, '<option value="%s" %s>%s</option>' % (z, form['tzchecked'], z)))
+
+    cities = '<option value=""></option>'
+    for c in city_list:
+        if params['city'] and c == params['city']:
+            form['cityselect'] = 'selected="selected"'
+        else:
+            form['cityselect'] = ''
+        #cities += '<option value="%s" %s>%s</option>' % (c, form['cityselect'], c)
+        cities = "".join((cities,'<option value="%s" %s>%s</option>' % (c, form['cityselect'], c)))
+
+    form['lat'] = params['lat'] or ''
+    form['long'] = params['long'] or ''
+    form['temp'] =  params['temp'] or ''
+    form['elev'] = params['elev'] or ''
+    form['pressure'] =  params['pressure'] or ''
+
+    stars = '<option value=""></option>'
+    params['star'] += ''                  # make sure star has at least one member
+    for s in star_list:
+        for ss in params['star']:
+            if s == ss:
+                form['starselect'] = selected
+                break
+        else:
+            form['starselect'] = ''
+        stars = "".join((stars, '<option value="%s" %s>%s</option>' % (s, form['starselect'], s)))
+
+    messiers = '<option value=""></option>'
+    params['messier'] += ''
+    for m in messier_list:
+        for mm in params['messier']:
+            if m == mm:
+                form['messierselect'] = selected
+                break
+        else:
+            form['messierselect'] = ''
+        messiers = "".join((messiers, '<option value="%s" %s>%s</option>' % (m, form['messierselect'], m)))
+
+    if params['altaz']:
+        form['altazchecked'] = (checked,'')
+    else:
+        form['altazchecked'] = ('',checked)
+
     print"""<div id="input">
     <form action="/ephem/index.cgi" method="post">
     <fieldset><legend><b>Time &amp; Date</b></legend>
     <table id="date_table">
     <tr align="center"><td>hour</td><td>minute</td><td>day</td><td>month</td><td>year</td><td> </td><td>Now</td></tr>
     <tr align="right"><td><select name="hour" onfocus="uncheckNow()">"""
-    hours = ''
-    for h in range(0,24):
-        if str(h) == str(params['hour']):
-            hours += '<option value="' + str(h) + '" selected="selected">' + str(h) + '</option>'
-        else:
-            hours += '<option value="' + str(h) + '" >' + str(h) + '</option>'
     print hours
-    print "</select></td> "
-    print '<td>:<select name="minute" onfocus="uncheckNow()">'
-    minutes = ''
-    for m in range(0,60):
-        if str(m) == str(params['minute']):
-            minutes += '<option value="' + str(m) + '" selected="selected">' + str(m) + '</option>'
-        else:
-            minutes += '<option value="' + str(m) + '" >' + str(m) + '</option>'
+    print """</select></td>
+        <td>:<select name="minute" onfocus="uncheckNow()">"""
     print minutes
-    print "</select></td> "
-    print '<td><select name="day" onfocus="uncheckNow()">'
-    days = ''
-    for d in range(1,32):
-        if str(d) == str(params['day']):
-            days += '<option value="' + str(d) + '" selected="selected">' + str(d) + '</option>'
-        else:
-            days += '<option value="' + str(d) + '" >' + str(d) + '</option>'
+    print """</select></td>
+        <td><select name="day" onfocus="uncheckNow()">"""
     print days
     print "</select></td>"
     print '<td>/<select name="month" onfocus="uncheckNow()">'
-    months = ''
-    for m in range(1,13):
-        if str(m) == str(params['month']):
-            months += '<option value="' + str(m) + '" selected="selected">' + str(m) + '</option>'
-        else:
-            months += '<option value="' + str(m) + '" >' + str(m) + '</option>'
     print months
     print "</select></td>"
-    if params['now']:
-        checked = ( 'checked="checked"')
-    else:
-        checked = ( '')
-    print '<td>/<input type="text" name="year" value="%s" size="5" onfocus="uncheckNow()" /></td><td> or  </td><td><input type="checkbox" name="now" value="True" %s /></td></tr></table><br />' % (params['year'], checked)
-    if params['utc']:
-        checked = ('checked="checked"', '')
-    else:
-        checked = ('', 'checked="checked"')
+    print '<td>/<input type="text" name="year" value="%(year)s" size="5" onfocus="uncheckNow()" /></td><td> or  </td><td><input type="checkbox" name="now" value="True" %(nowchecked)s /></td></tr></table><br />' %  form
     print """
     <table style="display: inline; margin: 0px; padding: 0px;">
-    <tr><td>UTC</td><td><input type="radio" name="utc" value="True" %s /></td></tr>
-    <tr><td>Local</td><td><input type="radio" name="utc" value="False" %s /></td>
-    """ % checked
-    print '<td>Timezone: <select name="tzname">'
-    if params['utc']:
-        zones = '<option value ="UTC" selected="selected">UTC</option>'
-    else:
-        zones = '<option value ="UTC">UTC</option>'
-    for z in tz_list:
-        checked = ''
-        if params['tzname'] and z == params['tzname']:
-            checked = "selected"
-        zones += '<option value="%s" %s>%s</option>' % (z, checked, z)
+    <tr><td>UTC</td><td><input type="radio" name="utc" value="True" %(utcchecked)s /></td></tr>
+    <tr><td>Local</td><td><input type="radio" name="utc" value="False" %(localchecked)s /></td>
+    <td>Timezone: <select name="tzname">
+    """ % form
     print zones
-    print """</select></td></tr></table></fieldset>
+    print """
+    </select></td></tr></table></fieldset>
     <fieldset><legend><b>Location</b></legend>
-    <fieldset><legend>Choose a city</legend>
-    City:  <select name="city">"""
-    cities = '<option value=""></option>'
-    for c in city_list:
-        if params['city'] and c == params['city']:
-            cities += '<option value=\"' + c + '\" selected="selected">' + c + '</option>'
-        else:
-            cities += '<option value=\"' + c + '\">' + c + '</option>'
+    <fieldset><legend> Choose a city </legend>
+    City:  <select name="city">
+    """
     print  cities
     print """
     </select> <small>Overrides any latitude and longitude below</small></fieldset><fieldset><legend>or input location manually</legend>
-    <small>West, South negative</small><br />"""
-    value = params['lat'] or ''
-    print 'Latitude: <input type="text" name="lat" value="%s" size="10" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />' % value
-    value = params['long'] or ''
-    print 'Longitude: <input type="text" name="long" value="%s" size="10" /><br />' % value
-    print "<hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />"
-    value =  params['temp'] or ''
-    print 'Temperature: <input type="text" name="temp" value="%s" size="5" />C  <small>default: 15C.</small><br />' % value
-    value = params['elev'] or ''
-    print  'Elevation: <input type="text" name="elev" value="%s" size="5" />metres <small>default: 0.0m</small><br />' % value
-    value =  params['pressure'] or ''
-    print 'Barometric Pressure: <input type="text" name="pressure" value="%s" size="5" />mBar <small>default: 1010mB</small><br />' % value
-    print """
+    <small>West, South negative</small><br />
+    Latitude: <input type="text" name="lat" value="%(lat)s" size="10" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />
+    Longitude: <input type="text" name="long" value="%(long)s" size="10" /><br />
+    <hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />
+    Temperature: <input type="text" name="temp" value="%(temp)s" size="5" />C  <small>default: 15C.</small><br />
+    Elevation: <input type="text" name="elev" value="%(elev)s" size="5" />metres <small>default: 0.0m</small><br />
+    Barometric Pressure: <input type="text" name="pressure" value="%(pressure)s" size="5" />mBar <small>default: 1010mB</small><br />
     </fieldset></fieldset>
     <fieldset><legend><b>Bodies</b></legend>
     <fieldset><legend>Solar System</legend>
@@ -550,42 +613,21 @@ def renderForm():
     <input type="checkbox" name="jupiter" value="True" checked="checked"/> Jupiter<br />
     <input type="checkbox" name="saturn" value="True" checked="checked"/> Saturn<br />
     </fieldset><fieldset><legend>Stars &amp; Nebulae</legend>
-    <small>Multiple selections use the control key</small><br />
-    <select name="star" multiple="multiple" > """
-    stars = '<option value=""></option>'
-    params['star'] += ''                  # make sure star has at least one member
-    for s in star_list:
-        for ss in params['star']:
-            if s == ss:
-                stars += '<option value=\"' + s + '\" selected="selected">' + s + '</option>'
-                break
-        else:
-            stars += '<option value=\"' + s + '\">' + s + '</option>'
+    <small>Multiple selections use the control key</small><br /> 
+    <select name="star" multiple="multiple" > """ % form
     print stars
     print '</select><select name="messier" multiple="multiple" >'
-    messiers = '<option value=""></option>'
-    params['messier'] += ''
-    for m in messier_list:
-        for mm in params['messier']:
-            if m == mm:
-                messiers += '<option value=\"' + m + '\" selected="selected">' + m + '</option>'
-                break
-        else:
-            messiers += '<option value=\"' + m + '\">' + m + '</option>'
     print messiers
-    print '</select> </fieldset></fieldset>'
-    if params['altaz']:
-        checked = ('checked="checked"','')
-    else:
-        checked = ('', 'checked="checked"')
-    print """<fieldset><legend>Results</legend>
+    print """
+    </select> </fieldset></fieldset>
+    <fieldset><legend>Results</legend>
     Display results in Alt/Az<input type="radio" name="altaz" value="True" %s />
      RA/Dec<input type="radio" name="altaz" value="False" %s />
      Only objects above horizon?<input type="checkbox" name="above_horiz" value="True" %s />
-     Only brighter than<input type="text" value="%s" name="minmag" size="3" />magnitude (lower is brighter)
+     <br />Only brighter than<input type="text" value="%s" name="minmag" size="3" />magnitude (lower is brighter)
     </fieldset>
     <fieldset><legend><b>Go</b></legend>
-    <input type="hidden" name="processed" value="True" />""" % ( checked + (params['above_horiz'] and 'checked="checked"' or '',) + ((params['minmag'] < 99 and params['minmag' or ''),))
+    <input type="hidden" name="processed" value="True" />""" % ( form['altazchecked'] + (params['above_horiz'] and 'checked="checked"' or '',) + (params['minmag'] < 99 and params['minmag'] or '',))
     if params['save'] or not params['processed']:
         checked = 'checked="checked"'
     else:
@@ -655,12 +697,18 @@ def renderHTMLIntro():
     <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.<ul>
         <li>Cities have their own default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
         <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspapers report.</li></ul></li>
+    <li>Magnitude is dimmer for bigger numbers, brighter for lower numbers, which can even go negative for brightest of all.</li>
+        <ul>
+            <li>Typically, you can see up to about 3 or 4 magnitude objects in an urban area, and up to about 6 or 7 in a rural area.</li>
+        </ul>
     <li>Select which of the planets you wish to see (temporarily disabled; you get the lot, free!).</li>
     <li>Select one or more stars you wish to see (use the control key to select multiple stars).</li>
     <li>Save settings stores your date, timezone and location information for later.  It uses cookies so it won't work if you have cookies disabled for this site.</li>
     </ul>
     <h3>Output</h3>
     <ul>
+    <li>TransAlt is the altitude at transit time.</li>
+    <li>Sort the columns by clicking on the column heading.  Click again to reverse sort.</li>
     <li>The next rise and set times are always the next event in the immediate future.  That means the next set time may be before the next rise time, or it could be the other way around.  This can be confusing to newcomers. When the body is currently above the horizon, setting will occur  before the next rising. On the other hand, when the body is below the horizon, e.g. on the other side of the Earth, it will rise before it sets next.  <br />You can tell which event occurs next by checking if the body is above or below the horizon currently: if above, the next event will be the set, followed by the rise; if below, the next event will be the rise followed by the set.</li>
     <li>Some stars either never set or never rise for your location, which means there is no set time or rise time.  In that case, the time is shown as -1 instead.</li>
     </ul>

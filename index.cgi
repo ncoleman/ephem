@@ -195,7 +195,11 @@ def main():
             autumnal = getLocalDateTime(autumnal)
             summer = getLocalDateTime(summer)
             winter = getLocalDateTime(winter)
-        print "<table cellpadding=\"10\" cellspacing=\"5\" ><tr><th class=\"seasons\">Seasons</th></tr><tr><td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr><tr><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>" % (vernal[:6] + autumnal[:6] + summer[:6] + winter[:6])
+        print """<table cellpadding=\"10\" cellspacing=\"5\" >
+            <tr><th class=\"seasons\">Seasons</th></tr>
+            <tr><td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>""" % (
+                    vernal[:6] + autumnal[:6] + summer[:6] + winter[:6])
         full_moon = ephem.next_full_moon(home.date).tuple()
         new_moon = ephem.next_new_moon(home.date).tuple()
         crescent_moon = getCrescentMoon(home).tuple()
@@ -207,7 +211,7 @@ def main():
         moon_keys = moons.keys()            # keys are ephem dates in tuple format when printed
         moon_keys.sort()                    # NB sort works correctly on tuples !
         print """<table cellpadding=\"10\" cellspacing=\"5\">
-            <tr><th>Next Moon</th></tr>
+            <tr><th class=\"seasons\">Next Moon</th></tr>
             <tr><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td>
             </tr><tr><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
             <tr><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>""" % (
@@ -504,7 +508,7 @@ def renderForm():
             form['minutechecked'] = selected
         else:
             form['minutechecked'] = ''
-        minutes = "".join((minutes, '<option value="%s" %s >%s</option>' % (m_, form['minutechecked'], m_)))
+        minutes = "".join((minutes, '<option value="%s" %s >%02d</option>' % (m_, form['minutechecked'], m)))
     form['minutes'] = minutes
     days = ''
     for d in range(1,32):
@@ -523,7 +527,7 @@ def renderForm():
             form['monthchecked'] = selected
         else:
             form['monthchecked'] = ''
-        months = "".join((months, '<option value="%s" %s >%s</option>' % (m_, form['monthchecked'], m_)))
+        months = "".join((months, '<option value="%s" %s >%02d</option>' % (m_, form['monthchecked'], m)))
     form['months'] = months
 
     form['year'] = params['year']

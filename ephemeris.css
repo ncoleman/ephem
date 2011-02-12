@@ -27,6 +27,11 @@ em#intro {
     font-weight: bold;
 }
 
+/* nested lists - second level */
+#intro ul ul {
+    list-style-type: square;
+}
+
 div#input, div#output {
     position: relative;
     float: left;
@@ -37,7 +42,8 @@ div#input, div#output {
 }
 
 div#input {
-	width: 45%;
+	min-width: 530px;
+	width: 43%;
 }
 
 div#output {

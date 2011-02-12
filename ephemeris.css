@@ -16,10 +16,15 @@ div#forms {
 div#intro {
     width: 90%;
     line-height: 1.5em;
+    font-size: 85%;
     float: none;
     clear: both;
     border: 1px solid gray;
     padding: 2em;
+}
+
+em#intro {
+    font-weight: bold;
 }
 
 div#input, div#output {
@@ -35,7 +40,7 @@ div#input {
 	width: 45%;
 }
 
-div#output{
+div#output {
     width: 50%;
     padding-left: 1em;
 }
@@ -61,6 +66,11 @@ div#output{
 	padding: 1em;
 }
 
+th {
+    background: #f7f7f7;
+    font-weight: normal;
+}
+
 
 #output th {
     text-decoration: none;
@@ -75,12 +85,9 @@ table, tr, td {
     border: none;
 }
 
-
-th {
-    background-color: #f7f7f7;
-    font-weight: normal;
+th.seasons {
+    background: #1ef;
 }
-
 
 td {
     height: 1.5em;

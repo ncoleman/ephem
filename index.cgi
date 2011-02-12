@@ -1,4 +1,4 @@
-#!/home/nickcoleman/local/bin/python
+#!/home/nickcoleman/local/bin/python -Wignore::DeprecationWarning
 #coding=utf-8
 
 from __future__ import with_statement
@@ -12,6 +12,8 @@ import pytz
 
 #   config variables
 messierdb = 'Messier.edb'
+tlefile = 'visual.txt'
+tleurl = 'www.celestrak.com/NORAD/elements/'
 # end config
 
 # params notes:  
@@ -143,6 +145,8 @@ def main():
     
     # do form processing
     if params['processed']:
+        for key in ('minute', 'hour', 'day', 'month'):
+            params[key] = int(params[key])          # tidy up params to correct type; has to be before validation so strings are ints (not year though)
 
         # do validation
         valid, validMsg = validateParams()
@@ -156,8 +160,7 @@ def main():
                 else:
                     params['year'], params['month'], params['day'], params['hour'], params['minute'] = getLocalDateTime(_date)[:5]
 
-            for key in ('minute', 'hour', 'day', 'month', 'year'):
-                params[key] = int(params[key])          # tidy up params to correct type
+            params['year'] = int(params['year'])          # tidy up params to correct type
             setUTCDate()
             for key in ('temp', 'pressure', 'elev', 'minmag'):
                 try:
@@ -176,14 +179,43 @@ def main():
     print '<div id="forms">'
     renderForm()
     print '<div id="output">'
-    print "<p>Results:</p>"
+    print "<p><b>Results:</b></p>"
 
     # render output
     if params['processed'] and valid:
-        print '<p>Times are %s, except where specified.</p>' % (params['utc'] and 'UTC' or 'local for ' + params['tzname'])
-        print "<p>For time:  <br />%s Local <br />%s UTC <br />Timezone: %s<br />Location:  %s, lat %s long %s,<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]),  home.date, params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
+        print '<p>Times are %s except where specified.</p>' % (params['utc'] and 'UTC' or 'local for ' + params['tzname'])
+        print "<p>For time:  <br />%s Local <br />%s UTC <br />Timezone: %s<br /></p><p>Location:  %s, lat %s long %s<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]),  home.date, params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
+        print "<p>Local noon: %02d:%02d:%02d</p>" % getLocalDateTime(params['sun'].transit_time.tuple())[3:6]
+        vernal = ephem.next_vernal_equinox(home.date).tuple()
+        autumnal = ephem.next_autumnal_equinox(home.date).tuple()
+        summer = ephem.next_summer_solstice(home.date).tuple()
+        winter = ephem.next_winter_solstice(home.date).tuple()
+        if not params['utc']:
+            vernal = getLocalDateTime(vernal)
+            autumnal = getLocalDateTime(autumnal)
+            summer = getLocalDateTime(summer)
+            winter = getLocalDateTime(winter)
+        print "<table cellpadding=\"10\" cellspacing=\"5\" ><tr><th class=\"seasons\">Seasons</th></tr><tr><td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr><tr><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>" % (vernal[:6] + autumnal[:6] + summer[:6] + winter[:6])
+        full_moon = ephem.next_full_moon(home.date).tuple()
+        new_moon = ephem.next_new_moon(home.date).tuple()
+        crescent_moon = getCrescentMoon(home).tuple()
+        if not params['utc']:
+            full_moon = getLocalDateTime(full_moon)
+            new_moon = getLocalDateTime(new_moon)
+            crescent_moon = getLocalDateTime(crescent_moon)
+        moons = {new_moon[:6]: 'new', full_moon[:6]: 'full', crescent_moon[:6]: 'crescent'}
+        moon_keys = moons.keys()            # keys are ephem dates in tuple format when printed
+        moon_keys.sort()                    # NB sort works correctly on tuples !
+        print """<table cellpadding=\"10\" cellspacing=\"5\">
+            <tr><th>Next Moon</th></tr>
+            <tr><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td>
+            </tr><tr><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>""" % (
+            moons[moon_keys[0]], moon_keys[0][0], moon_keys[0][1], moon_keys[0][2], moon_keys[0][3], moon_keys[0][4], moon_keys[0][5], 
+            moons[moon_keys[1]], moon_keys[1][0], moon_keys[1][1], moon_keys[1][2], moon_keys[1][3], moon_keys[1][4], moon_keys[1][5], 
+            moons[moon_keys[2]], moon_keys[2][0], moon_keys[2][1], moon_keys[2][2], moon_keys[2][3], moon_keys[2][4], moon_keys[2][5]) 
         altaz = params['altaz'] and ('Altitude', 'Azimuth') or ('RA', 'Dec')
-        print 'Times are %s. Click column heading to sort.' % (params['utc'] and 'UTC' or 'local')
+        print '<p><small>Times are %s. Click column heading to sort.</small></p>' % (params['utc'] and 'UTC' or 'local')
         print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % (altaz)
         format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
         for body in ('sun','moon','mercury','venus','mars','jupiter','saturn'):
@@ -275,14 +307,14 @@ def doEphemStuff():
         home = ephem.city(params['city'])
     elif params['lat'] and params['long']:
         home = ephem.Observer()
-        home.name = 'User-provided'
+        home.name = 'provided input'
         home.lat = params['lat']
         home.long = params['long']
         home.temp = 15.0        # will be overridden below if a value was manually entered
         home.elev = 0.0
         home.pressure = 1010.0
     else:
-        params['city'] = 'Wembley'
+        params['city'] = 'Perth, Aust'
         home = ephem.city(params['city'])
     if params['temp']:
         home.temp = params['temp']
@@ -321,23 +353,23 @@ def renderHTMLHead():
     <html  xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
         <head>
             <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-            <meta name="keywords" content="ephemeris xephem python" />
-            <meta name="description" content="web based ephemeris written in Python using the pyephem" />
-            <script type="text/javascript">
-                function uncheckNow() {
-                    var elements = document.getElementsByName('now');
-                    elements[0].checked = false;        // poss Bug: assumes only one element named 'now'
-                }
-            </script>
+            <meta name="keywords" content="ephemeris, online, online epheris, xephem, python, pyephem" />
+            <meta name="description" content="web based online ephemeris written in Python using the pyephem module" />
             <link rel="stylesheet" href="ephemeris.css" type="text/css" />
             <script type="text/javascript" src="js/sortable.js"></script>
-            <title>Ephemeris</title>
+            <title>Online Ephemeris</title>
         </head>
-        <body><div id="content"><a name="top"></a><a href="/">Home</a><h1>Ephemeris</h1><p><a href="#intro">Introduction</a> and help.</p>"""
+        <body><div id="content"><a name="top"></a><a href="/">Home</a><h1>Ephemeris</h1><p><a href="#intro"><h2>Help</h2></a></p>"""
 
 
 def renderHTMLFooter():
     print """</div><!-- content -->
+        <script type="text/javascript">
+            function uncheckNow() {
+                var elements = document.getElementsByName('now');
+                elements[0].checked = false;        // poss Bug: assumes only one element named 'now'
+            }
+        </script>
         <script type="text/javascript"> 
         <!--
             document.write('<img src="/axs/ax.pl?mode=img&ref=');
@@ -363,7 +395,7 @@ def setCookies(clear=False):
         expire = -1                                  # 
     else:
         expire = 63072000                           # 2 years in seconds
-    for key in ('hour', 'minute', 'day', 'month', 'year', 'now', 'utc', 'tzname', 'city', 'lat', 'long', 'save'): 
+    for key in ('hour', 'minute', 'day', 'month', 'year', 'now', 'utc', 'tzname', 'city', 'lat', 'long', 'elev', 'save'): 
         cookie[key] = params[key]
         cookie[key]['path'] = '/ephem'
         if params[key]:                             # avoid None or False params
@@ -413,15 +445,12 @@ def validateParams():
         # NB pyEphem can handle invalid date like 30/2; it changes it to 2/3.
         if params['month'] in (4,6,9,11):
             if params['day'] > 30:
-                validateMsg += r'<p class="error">Day: %s is not a valid day for that month $s.</p>' % (params['day'], params['month'])
+                validateMsg += r'<p class="error">Day: %s is not a valid day for that month %s.</p>' % (params['day'], params['month'])
                 valid = False
         if params['month'] == 2:
             if params['day'] > 29:
-                validateMsg += r'<p class="error">Month: %s is not a valid day for that month $s.</p>' % (params['day'], params['month'])
+                validateMsg += r'<p class="error">Month: %s is not a valid day for month %s.</p>' % (params['day'], params['month'])
                 valid = False
-        if params['year'] == 2:
-            validateMsg += r'<p class="error">Month: %s is not a valid day for that month $s.</p>' % (params['day'], params['month'])
-            valid = False
         if params['temp'] and not (-50 < params['temp'] < 60):
             validateMsg += r'<p class="error">Temp: %s is out of the allowed temperature range of -50C to +50C. (Did you use Fahrenheit?)</p>' % params['temp']
             valid = False
@@ -599,7 +628,7 @@ def renderForm():
     Latitude: <input type="text" name="lat" value="%(lat)s" size="10" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />
     Longitude: <input type="text" name="long" value="%(long)s" size="10" /><br />
     <hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />
-    Temperature: <input type="text" name="temp" value="%(temp)s" size="5" />C  <small>default: 15C.</small><br />
+    Temperature: <input type="text" name="temp" value="%(temp)s" size="5" />°C  <small>default: 15C.</small><br />
     Elevation: <input type="text" name="elev" value="%(elev)s" size="5" />metres <small>default: 0.0m</small><br />
     Barometric Pressure: <input type="text" name="pressure" value="%(pressure)s" size="5" />mBar <small>default: 1010mB</small><br />
     </fieldset></fieldset>
@@ -613,13 +642,13 @@ def renderForm():
     <input type="checkbox" name="jupiter" value="True" checked="checked"/> Jupiter<br />
     <input type="checkbox" name="saturn" value="True" checked="checked"/> Saturn<br />
     </fieldset><fieldset><legend>Stars &amp; Nebulae</legend>
-    <small>Multiple selections use the control key</small><br /> 
+    <small>Multiple selections use the control key.  For your convenience: <a href="http://en.wikipedia.org/wiki/List_of_Messier_objects" target=\"_blank\">list of Messiers</a></small><br /> 
     <select name="star" multiple="multiple" > """ % form
     print stars
-    print '</select><select name="messier" multiple="multiple" >'
+    print '</select> <select name="messier" multiple="multiple" >'
     print messiers
     print """
-    </select> </fieldset></fieldset>
+    </select></fieldset></fieldset>
     <fieldset><legend>Results</legend>
     Display results in Alt/Az<input type="radio" name="altaz" value="True" %s />
      RA/Dec<input type="radio" name="altaz" value="False" %s />
@@ -652,9 +681,9 @@ def setUTCDate():
 
 
 def getLocalDateTime(date):
+    # Input tuple, returns tuple.
     # NB Can't use ephem.localtime as that uses the machine's timezone info.
-    # NB assumes this comes in as ephem.Date type, not datetime type
-    # returns tuple
+    # NB input as ephem.Date type, not datetime type.
     # from http://stackoverflow.com/questions/1357711/pytz-utc-conversion
     tz = pytz.timezone(params['tzname'])
     utc = pytz.utc
@@ -680,55 +709,83 @@ def getMessierEdb(m):
         pass
     return edb
 
+def getCrescentMoon(home):
+    """ return the next date time in ephem format of crescent moon
+    
+    where sun has set and moon > 10 degrees above horizon after sun set"""
+    h = home
+    next_new = ephem.next_new_moon(h.date)
+    prev_new = ephem.previous_new_moon(h.date)
+    # Step back a day if necessary, which is that time ± a few hours of the new moon,
+    # so that today's crescent moon is calculated for today, rather than next month
+    if int(h.date) == int(prev_new):
+        h.date -= 1
+    else:
+        h.date = next_new
+    m = ephem.Moon(h)
+    s = ephem.Sun(h)
+    while (h.next_setting(s) > h.next_setting(m)) and m.alt < 9:
+        h.date = h.next_setting(s) + ephem.second           # help avoid infinite loop, one second is neither here nor there
+        s.compute(h)
+        m.compute(h)
+    return ephem.date(h.date + ephem.second)                # kludge to add 1 second to avoid clashing dictionary keys after the calling function
 
 def renderHTMLIntro():
     print """
     <div id="intro"><a name="intro"></a>
     <h2>Ephemeris</h2>
-    <p>This is a general purpose ephemeris.  It can display a range of information for the planets and the major stars as viewed from any location on Earth.  </p>
+    <h3>Introduction</h3>
+    <p>This is an online general purpose ephemeris, a table that gives the positions of celestial objects.  It can display a range of information for the planets, the major stars and the <a href="/axs/ax.pl?http://en.wikipedia.org/wiki/Messier_object">Messier objects</a> as viewed from any location on Earth.  </p>
+    <p>I designed it mainly for naked-eye or binocular work.  It is especially useful for situations like "What is that bright object about 40 degrees up in the East".</p>
     <p>Major cities can be selected from the drop-down list, or you can enter a latitude and longitude.</p>
-    <p>Use either UTC or local timezone to select the time.</p>
-    <h3>Use</h3>
+    <p>You can use either UTC (GMT) or your local timezone to select the time.</p>
+    <h3>Usage</h3>
     <ul> 
-    <li>Select the time and date.  Initially, it is set to current time UTC.</li>
-    <li>Select UTC or local time and select your timezone.</li>
-    <li>Select a city, or</li>
-    <li>Enter the latitude and longitude.</li>
-    <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.<ul>
+    <li>Select the time and date, or choose Now.  Initially, it is set to current time in UTC.</li>
+    <li>Select UTC or local time and your timezone.</li>
+    <li>Select your location:</li>
+        <ul>
+            <li>a city from the drop-down list, or</li>
+            <li>enter the latitude and longitude.</li>
+        </ul>
+    <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.
+    <ul>
+        <li>These affect the angles only slightly.  You probably don't need to bother.</li>
         <li>Cities have their own default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
         <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspapers report.</li></ul></li>
-    <li>Magnitude is dimmer for bigger numbers, brighter for lower numbers, which can even go negative for brightest of all.</li>
+        <li>Magnitude: magnitude is a measure of brightness (or dimness, if you prefer); the dimmer the object the higher the number.  The scale ranges from negative (very bright objects) to positive (dimmer objects). Most visible stars are between roughly 1&mdash;6. </li>
         <ul>
-            <li>Typically, you can see up to about 3 or 4 magnitude objects in an urban area, and up to about 6 or 7 in a rural area.</li>
+            <li>Typically, with the naked eye you can see up to about magnitude 3 objects in an urban area, and up to about 6 in a rural area.  Binoculars increase that quite a bit, up to about 9 in a rural area.</li>
         </ul>
     <li>Select which of the planets you wish to see (temporarily disabled; you get the lot, free!).</li>
-    <li>Select one or more stars you wish to see (use the control key to select multiple stars).</li>
-    <li>Save settings stores your date, timezone and location information for later.  It uses cookies so it won't work if you have cookies disabled for this site.</li>
+    <li>Select none or more stars you wish to see (use the control key to select multiple stars; ctrl-a to select all of them).</li>
+    <li>Do the same with the Messier objects.</li>
+    <li>Choose whether to display the results in Altitude/Azimuth format, or in <a href="/axs/ax.pl?http://en.wikipedia.org/wiki/Declination">Right Angle/Declination</a> format.</li>
+    <li>Choose to display only those objects that are above the horizon.</li>
+    <li>Choose to display only those objects brighter than a certain value (the lower the value the more objects are filtered out; higher values will include dimmer objects).</li>
+        <ul><li>Example: display only those objects brighter than mag 4 since you live in a city and cannot see dimmer objects anyway.  Enter 4 in the box.  The results will display everthing from magnitude -99 to 4 and will exclude everything from 4 to 99.</li></ul>
+    <li>Choose to save settings, which stores your date, timezone and location information for later so you won't have to re-enter them again.  It uses cookies so it won't work if you have cookies disabled for this site.</li>
+    <li>Clear settings removes any settings you have previously stored, e.g. you want to remove a saved city.  (It may not take effect until a browser restart.)</li>
     </ul>
     <h3>Output</h3>
     <ul>
-    <li>TransAlt is the altitude at transit time.</li>
-    <li>Sort the columns by clicking on the column heading.  Click again to reverse sort.</li>
-    <li>The next rise and set times are always the next event in the immediate future.  That means the next set time may be before the next rise time, or it could be the other way around.  This can be confusing to newcomers. When the body is currently above the horizon, setting will occur  before the next rising. On the other hand, when the body is below the horizon, e.g. on the other side of the Earth, it will rise before it sets next.  <br />You can tell which event occurs next by checking if the body is above or below the horizon currently: if above, the next event will be the set, followed by the rise; if below, the next event will be the rise followed by the set.</li>
+    <li>You can sort the columns by clicking on the column heading.  Click again to reverse the sort.</li>
+    <li>The rise and set times are always the <em>next</em> event in the immediate future.  This can be confusing. Set time may be before rise time, or vice versa.  When a body is currently above the horizon, it sets before it rises next.  When the body is below the horizon, e.g. on the other side of the Earth, it rises before it sets.  You can tell which event occurs first by checking if the body is above or below the horizon currently.</li>
+    <li>The <em>crescent moon</em> is the time of sunset for the crescent after the new moon, when the moon sets after the sun and is at least 9° above the horizon (9° chosen arbitrarily). This may be the day of the new moon, or it may be the day after.  (Sometimes the crescent moon immediately after the new moon is only a couple of degrees above the horizon and you can't really see it due to haze from the setting sun.)   I included this for interest's sake as I think the new crescent moon is quite pretty.  It is not supposed to be accurate enough for religious observations; it does not take the local horizon into account.</li>
     <li>Some stars either never set or never rise for your location, which means there is no set time or rise time.  In that case, the time is shown as -1 instead.</li>
+    <li><em>TransAlt</em>, transit altitude, is the altitude at transit time, which is the time an object is the highest in the sky (i.e. passes through North).</li>
+    <li><em>Local noon</em> is the time that the Sun is highest in the sky (the Sun's transit time).  Locations in the east of a timezone have their local noon earlier than locations in the west.</li>
     </ul>
     <h3>About</h3>
-    <p>This is version 1.0, usable but not tidy or complete yet.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>
+    <p>This is version 1.1, usable but not tidy.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>
     <p>pyEphem made the astronomy calculations easy.  Almost all the development work was in data validation, getting cookies to work properly, and the html.</p>
+    <p>Tested on google-chrome, opera and firefox.  Not yet tested on IE.</p>
     <h3>To Do</h3>
     <ul>
-    <!-- <li>Get saved settings working.  The cookies implementation is not working properly, so I've disabled it.</li> -->
     <!-- <li>Fix Moon next rise bug.</li> -->
     <li>Add options to allow different fields in the output: next/prev rise/alt; transit time/alt.</li>
-    <!--
-    <li>Get local vs UTC sorted out and working correctly</li>
-    <li>Work out how to programatically calculate timezone offsets so I can display times in the user's local time.</li> -->
-    <li>Allow for bodies below the horizon to be excluded from the output.</li>
     <li>create star charts. I think I know how to do it and am now mulling over which projection method to use.  I'm leaning towards stereographic at the moment.</li>
-    <li>tidy up the planets output.</li>
-    <li>tidy up the stars output</li>
-    <li>Tidy up the HTML to be standards compliant with doctype, correct meta headers, and so on.</li>
-    <li>Tested on google-chrome, opera and firefox.   Opera appears to have some problems with reading cookies on the initial page, but works correctly after submitting the form.  Chrome and firefox work fine.  Not yet tested on IE.</li>
+    <li>Add ability to display satellite passes: ISS and Hubble.</li>
     </ul>
     <a href="#top">Top of page</a>
     </div><!-- intro -->

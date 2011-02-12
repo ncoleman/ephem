@@ -725,22 +725,29 @@ def getCrescentMoon(home):
     """ return the next date time in ephem format of crescent moon
     
     where sun has set and moon > 10 degrees above horizon after sun set"""
-    h = home
-    next_new = ephem.next_new_moon(h.date)
-    prev_new = ephem.previous_new_moon(h.date)
+    _home_date = home.date
+    next_new = ephem.next_new_moon(home.date)
+    prev_new = ephem.previous_new_moon(home.date)
     # Step back a day if necessary, which is that time ± a few hours of the new moon,
     # so that today's crescent moon is calculated for today, rather than next month
-    if int(h.date) == int(prev_new):
-        h.date -= 1
+    if int(home.date) == int(prev_new):
+        home.date -= 1
     else:
-        h.date = next_new
-    m = ephem.Moon(h)
-    s = ephem.Sun(h)
-    while (h.next_setting(s) > h.next_setting(m)) and m.alt < 9:
-        h.date = h.next_setting(s) + ephem.second           # help avoid infinite loop, one second is neither here nor there
-        s.compute(h)
-        m.compute(h)
-    return ephem.date(h.date + ephem.second)                # kludge to add 1 second to avoid clashing dictionary keys after the calling function
+        home.date = next_new
+    m = ephem.Moon(home)
+    s = ephem.Sun(home)
+    i = 0                                                           # loop counter to avoid ridiculous number of attempts
+    while (home.next_setting(s) > home.next_setting(m)) or m.alt < 9:
+        i += 1
+        if i > 3:
+            break
+        home.date = home.next_setting(s) + ephem.second           # help avoid infinite loop, one second is neither here nor there
+        s.compute(home)
+        m.compute(home)
+        print home.date, m.alt
+    _temp = home.date
+    home.date = _home_date
+    return ephem.date(_temp + ephem.second)                # kludge to add 1 second to avoid clashing dictionary keys after the calling function
 
 def renderHTMLIntro():
     print """
@@ -793,14 +800,15 @@ def renderHTMLIntro():
     <ul>
     <li>You can sort the columns by clicking on the column heading.  Click again to reverse the sort.</li>
     <li>The rise and set times are always the <em>next</em> event in the immediate future.  This can be confusing. Set time may be before rise time, or vice versa.  When a body is currently above the horizon, it sets before it rises next.  When the body is below the horizon, e.g. on the other side of the Earth, it rises before it sets.  You can tell which event occurs first by checking if the body is above or below the horizon currently.</li>
-    <li>The <em>crescent moon</em> is the time of sunset immediately after the new moon (whose time may have been during the day), once the moon sets after the sun and it is at least 10° above the horizon (10° chosen arbitrarily&ndash;sometimes the crescent moon is only a couple of degrees above the horizon and you can't really see it). This may be the day of the new moon, or it may be the day after.  I included this for interest's sake as the new crescent moon is quite pretty.  It is not supposed to be accurate enough for religious observations; it does not take the height of the your horizon into account.</li>
+    <li>The <em>crescent moon</em> is the time of sunset immediately after the new moon (whose time may have been during the day), once the moon sets after the sun and it is at least 10° above the horizon (10° chosen arbitrarily&ndash;sometimes the crescent moon is only a couple of degrees above the horizon and you can't really see it). This may be the day of the new moon, or it may be a day or two later.  I included this for interest's sake as the new crescent moon is quite pretty.  It is not supposed to be accurate enough for religious observations; it does not take the height of the your horizon into account.</li>
     <li>Some stars either never set or never rise for your location, which means there is no set time or rise time.  In that case, the time is shown as -1 instead.</li>
     <li><em>TransAlt</em>, transit altitude, is the altitude at transit time, which is the time an object is the highest in the sky (i.e. passes through North).</li>
     <li><em>Local noon</em> is the time that the Sun is highest in the sky (the Sun's transit time).  Locations in the east of a timezone have their local noon earlier than locations in the west.</li>
     </ul>
     <h3>Restrictions</h3>
     <ul>
-    <li><em>Date restrictions</em> are 1 A.D. &mdash; 9999 A.D., due to python's limited date module which cannot go further back than 1 A.D.  The astronomical library I use can go further back, but I haven't implemented it because it would be a lot of work for the very few times it would be used.  Email me if this is an issue for you and I might change my mind.</li>
+    <li><em>Date restrictions</em> are 1 A.D. &mdash; 9999 A.D., due to python's limited date module which cannot go further back than 1 A.D.  The astronomical library I use can go further back, but I haven't implemented that feature because it would be a lot of work for the very few times it would be used.  Email me if this is an issue for you and I might change my mind.</li>
+    <li>The crescent moon calculations are problematic within three days after the new moon.  It might be a crescent moon tonight, but the calculator will show it as being next month.  The reason is that calculations look forward, and the next new moon is a month away as far as the calculations are concerned.  If today is around a new moon (look for phase ≈ 0), set the date to a few days ago and see if the crescent moon is today.</li>
     </ul>
     <h3>About</h3>
     <p>This is version 1.1, usable but not tidy.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>

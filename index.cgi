@@ -363,7 +363,7 @@ def renderHTMLHead():
             <script type="text/javascript" src="js/sortable.js"></script>
             <title>Online Ephemeris</title>
         </head>
-        <body><div id="content"><a name="top"></a><a href="/">Home</a><h1>Ephemeris</h1><p><a href="#intro"><h2>Help</h2></a></p>"""
+        <body><div id="content">Back to <a name="top"></a><a href="/">Home</a><h1>Ephemeris</h1><p><a href="#intro"><h3>Features &amp; Help</h3></a></p>"""
 
 
 def renderHTMLFooter():
@@ -619,7 +619,7 @@ def renderForm():
     print '<td>/<select name="month" onfocus="uncheckNow()">'
     print months
     print "</select></td>"
-    print '<td>/<input type="text" name="year" value="%(year)s" size="5" onfocus="uncheckNow()" /></td><td> or  </td><td><input type="checkbox" name="now" value="True" %(nowchecked)s /></td></tr></table><br />' %  form
+    print '<td>/<input type="text" name="year" value="%(year)s" size="5" onfocus="uncheckNow()" /></td><td> or  </td><td><input type="checkbox" name="now" value="True" %(nowchecked)s /> </td><td> <input type="submit" value="Submit" /></td></tr></table><br />' %  form
     print """
     <table style="display: inline; margin: 0px; padding: 0px;">
     <tr><td>UTC</td><td><input type="radio" name="utc" value="True" %(utcchecked)s /></td></tr>
@@ -664,7 +664,7 @@ def renderForm():
     <fieldset><legend>Results</legend>
     Display results in Alt/Az<input type="radio" name="altaz" value="True" %s />
      RA/Dec<input type="radio" name="altaz" value="False" %s />
-     Only objects above horizon?<input type="checkbox" name="above_horiz" value="True" %s />
+     <br />Only objects above horizon?<input type="checkbox" name="above_horiz" value="True" %s />
      <br />Only brighter than<input type="text" value="%s" name="minmag" size="3" />magnitude (lower is brighter)
     </fieldset>
     <fieldset><legend><b>Go</b></legend>
@@ -748,9 +748,19 @@ def renderHTMLIntro():
     <h2>Ephemeris</h2>
     <h3>Introduction</h3>
     <p>This is an online general purpose ephemeris, a table that gives the positions of celestial objects.  It can display a range of information for the planets, the major stars and the <a href="/axs/ax.pl?http://en.wikipedia.org/wiki/Messier_object">Messier objects</a> as viewed from any location on Earth.  </p>
-    <p>I designed it mainly for naked-eye or binocular work.  It is especially useful for situations like "What is that bright object about 40 degrees up in the East".</p>
-    <p>Major cities can be selected from the drop-down list, or you can enter a latitude and longitude.</p>
-    <p>You can use either UTC (GMT) or your local timezone to select the time.</p>
+    <p>I designed it mainly for naked-eye or binocular work.  It is especially useful for situations like, "What is that bright object about 40 degrees up in the East".</p>
+    <h3>Features</h3>
+    <ul>
+        <li>You can use your local time or UTC (GMT), whichever you prefer, or you can just click on the <em>Now</em> box.</li>
+        <li>You can use the handy list of timezones to enter your timezone, which is needed if you are using your local time.</li>
+        <li>You can choose your location from a list of provided cities, or you can enter your latitude and longitude in a variety of formats.</li>
+        <li>You can fine tune things with the local temperature, pressure and altitude, but you don't have to.</li>
+        <li>You get all the naked-eye visible planets.</li>
+        <li>You can also select a range of common stars and messier objects.</li>
+        <li>You can do some filtering to exclude irrelevant objects.</li>
+        <li>You can save your settings for next time.</li>
+        <li>Two <i>Submit</i> buttons, one top and one bottom, for when you are just changing the date and don't want to scroll down to the bottom button.</li>
+    </ul>
     <h3>Usage</h3>
     <ul> 
     <li>Select the time and date, or choose Now.  Initially, it is set to current time in UTC.</li>
@@ -760,10 +770,10 @@ def renderHTMLIntro():
             <li>a city from the drop-down list, or</li>
             <li>enter the latitude and longitude.</li>
         </ul>
-    <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.
+    <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.</li>
     <ul>
         <li>These affect the angles only slightly.  You probably don't need to bother.</li>
-        <li>Cities have their own default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
+        <li>Cities come with a default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
         <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspapers report.</li></ul></li>
         <li>Magnitude: magnitude is a measure of brightness (or dimness, if you prefer); the dimmer the object the higher the number.  The scale ranges from negative (very bright objects) to positive (dimmer objects). Most visible stars are between roughly 1&mdash;6. </li>
         <ul>
@@ -783,11 +793,14 @@ def renderHTMLIntro():
     <ul>
     <li>You can sort the columns by clicking on the column heading.  Click again to reverse the sort.</li>
     <li>The rise and set times are always the <em>next</em> event in the immediate future.  This can be confusing. Set time may be before rise time, or vice versa.  When a body is currently above the horizon, it sets before it rises next.  When the body is below the horizon, e.g. on the other side of the Earth, it rises before it sets.  You can tell which event occurs first by checking if the body is above or below the horizon currently.</li>
-    <li>The <em>crescent moon</em> is the time of sunset for the crescent after the new moon, when the moon sets after the sun and is at least 9° above the horizon (9° chosen arbitrarily). This may be the day of the new moon, or it may be the day after.  (Sometimes the crescent moon immediately after the new moon is only a couple of degrees above the horizon and you can't really see it due to haze from the setting sun.)   I included this for interest's sake as I think the new crescent moon is quite pretty.  It is not supposed to be accurate enough for religious observations; it does not take the local horizon into account.</li>
+    <li>The <em>crescent moon</em> is the time of sunset immediately after the new moon (whose time may have been during the day), once the moon sets after the sun and it is at least 10° above the horizon (10° chosen arbitrarily&ndash;sometimes the crescent moon is only a couple of degrees above the horizon and you can't really see it). This may be the day of the new moon, or it may be the day after.  I included this for interest's sake as the new crescent moon is quite pretty.  It is not supposed to be accurate enough for religious observations; it does not take the height of the your horizon into account.</li>
     <li>Some stars either never set or never rise for your location, which means there is no set time or rise time.  In that case, the time is shown as -1 instead.</li>
     <li><em>TransAlt</em>, transit altitude, is the altitude at transit time, which is the time an object is the highest in the sky (i.e. passes through North).</li>
     <li><em>Local noon</em> is the time that the Sun is highest in the sky (the Sun's transit time).  Locations in the east of a timezone have their local noon earlier than locations in the west.</li>
-    <li><em>Date restrictions</em> are 1 A.D. &mdash; 9999 A.D., due to python's limited date module which cannot go further back than 1 A.D.  Pyephem can go further back, but I haven't implemented it because it would be a lot of work for the very few times it would be used.  Email me if this is an issue for you and I might change my mind.</li>
+    </ul>
+    <h3>Restrictions</h3>
+    <ul>
+    <li><em>Date restrictions</em> are 1 A.D. &mdash; 9999 A.D., due to python's limited date module which cannot go further back than 1 A.D.  The astronomical library I use can go further back, but I haven't implemented it because it would be a lot of work for the very few times it would be used.  Email me if this is an issue for you and I might change my mind.</li>
     </ul>
     <h3>About</h3>
     <p>This is version 1.1, usable but not tidy.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>

@@ -11,11 +11,17 @@ results.
 *   09/22/2010  refactor renderForm to using large print """ statements
 *   09/22/2010  refactor renderForm to using a dictionary instead of %s
 substitutuions
+*   02/09/2011  added seasons capability   
+*   02/11/2011  added Moon capability
+*   02/12/2011  added/refined crescent moon capability.
+*   02/12/2011  modified css (see git log) to refine error messages, bullets
+for lists, minor box sizes.
 
 
 TODO
 ====
 
+*   add ability for satellites
 *   fix up formatting for the input form, spec. remove tables and change it to
 use CSS.
 *   DONE change renderForm function away from using values and %s interspersed with

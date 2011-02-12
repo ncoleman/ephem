@@ -46,6 +46,8 @@ div#output {
 }
 
 .error {
+    width: 40%;
+    float: right;
     font-size: 100%;
     font-weight: bold;
     color: red;
@@ -85,8 +87,8 @@ table, tr, td {
     border: none;
 }
 
-th.seasons {
-    background: #1ef;
+#output th.seasons {
+    background: #eef;
 }
 
 td {

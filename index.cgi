@@ -436,8 +436,16 @@ def validateParams():
         if params['pressure'] and not re.match(r'^[0-9]{3,4}(\.[0-9]*)?$', str(params['pressure'])):
             validateMsg += r'<p class="error">Pressure %s is invalid</p>' % params['pressure']
             valid = False
-        if params['year'] and not re.match(r'^[0-9]{3,4}$', params['year']):
-            validateMsg += r'<p class="error">Year %s is invalid</p>' % params['year']
+        if params['year']:
+            try:                                            # workaround for annoying bug when year is empty and re module raises exception.
+                if not re.match(r'^([1-9]{1}|[0-9]{2,4})$', params['year']):
+                    validateMsg += r'<p class="error">Year %s is invalid</p>' % params['year']
+                    valid = False
+            except TypeError:
+                validateMsg += r'<p class="error">Year was invalid, current year substituted. Re-submit.</p>'
+                valid = False
+        else:
+            validateMsg += r'<p class="error">Year is invalid</p>'
             valid = False
         if params['minmag'] and not re.match(r'^[+-]?[0-9]{1,2}(\.[0-9]*)*$', str(params['minmag'])):
             validateMsg += r'<p class="error">Brighter than magnitude %s is invalid</p>' % params['minmag']
@@ -476,7 +484,7 @@ def validateParams():
 
 
 def renderErrors(validateMsg):
-    print '<div class="error">'
+    print '<div id="output">'
     for line in validateMsg.splitlines():
         print line
     print '</div><!-- error -->'
@@ -779,6 +787,7 @@ def renderHTMLIntro():
     <li>Some stars either never set or never rise for your location, which means there is no set time or rise time.  In that case, the time is shown as -1 instead.</li>
     <li><em>TransAlt</em>, transit altitude, is the altitude at transit time, which is the time an object is the highest in the sky (i.e. passes through North).</li>
     <li><em>Local noon</em> is the time that the Sun is highest in the sky (the Sun's transit time).  Locations in the east of a timezone have their local noon earlier than locations in the west.</li>
+    <li><em>Date restrictions</em> are 1 A.D. &mdash; 9999 A.D., due to python's limited date module which cannot go further back than 1 A.D.  Pyephem can go further back, but I haven't implemented it because it would be a lot of work for the very few times it would be used.  Email me if this is an issue for you and I might change my mind.</li>
     </ul>
     <h3>About</h3>
     <p>This is version 1.1, usable but not tidy.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>

@@ -508,6 +508,7 @@ def renderForm():
         else:
             form['hourchecked'] = ''
         hours = "".join((hours, '<option value="%s" %s >%s</option>' % (h_, form['hourchecked'], h_)))
+    hours = "".join((hours, '<option value="0" >0</option>'))         # append 0 to avoid unnecessary scrolling
     form['hours'] = hours
     minutes = ''
     for m in range(0,60):
@@ -517,6 +518,7 @@ def renderForm():
         else:
             form['minutechecked'] = ''
         minutes = "".join((minutes, '<option value="%s" %s >%02d</option>' % (m_, form['minutechecked'], m)))
+    minutes = "".join((minutes, '<option value="00" >00</option>'))         # append 00 to avoid unnecessary scrolling
     form['minutes'] = minutes
     days = ''
     for d in range(1,32):

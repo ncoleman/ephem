@@ -725,6 +725,7 @@ def getCrescentMoon(home):
     """ return the next date time in ephem format of crescent moon
     
     where sun has set and moon > 10 degrees above horizon after sun set"""
+    moon_minimum = ephem.degrees('09:00:00')
     _home_date = home.date
     next_new = ephem.next_new_moon(home.date)
     prev_new = ephem.previous_new_moon(home.date)
@@ -734,19 +735,24 @@ def getCrescentMoon(home):
         home.date -= 1
     else:
         home.date = next_new
-    m = ephem.Moon(home)
     s = ephem.Sun(home)
+    m = ephem.Moon(home)
+    home.date = home.next_setting(s)
+    s.compute(home)
+    m.compute(home)
+    # This loop used to test for sunset before moonset, but since the calc date is set to sunset each
+    # iteration, it is enough to test simply for moon alt > 9 at sunset, since if moonset was before sunset, 
+    # the altitude would be negative.
     i = 0                                                           # loop counter to avoid ridiculous number of attempts
-    while (home.next_setting(s) > home.next_setting(m)) or m.alt < 9:
-        i += 1
-        if i > 3:
+    while m.alt < moon_minimum:                                     # trap for the unwary: native angles are in radians and only display as angles.
+        if i > 4:
             break
-        home.date = home.next_setting(s) + ephem.second           # help avoid infinite loop, one second is neither here nor there
+        i += 1
+        home.date = home.next_setting(s)
         s.compute(home)
         m.compute(home)
-        print home.date, m.alt
     _temp = home.date
-    home.date = _home_date
+    home.date = _home_date                                  # restore original home.date
     return ephem.date(_temp + ephem.second)                # kludge to add 1 second to avoid clashing dictionary keys after the calling function
 
 def renderHTMLIntro():

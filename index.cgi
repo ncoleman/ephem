@@ -200,24 +200,37 @@ def main():
             <tr><td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
             <tr><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>""" % (
                     vernal[:6] + autumnal[:6] + summer[:6] + winter[:6])
-        full_moon = ephem.next_full_moon(home.date).tuple()
-        new_moon = ephem.next_new_moon(home.date).tuple()
-        crescent_moon = getCrescentMoon(home).tuple()
+        next_full_moon = ephem.next_full_moon(home.date).tuple()
+        next_new_moon = ephem.next_new_moon(home.date).tuple()
+        next_crescent_moon = getCrescentMoon(home, next_new_moon).tuple()
+        prev_full_moon = ephem.previous_full_moon(home.date).tuple()
+        prev_new_moon = ephem.previous_new_moon(home.date).tuple()
+        prev_crescent_moon = getCrescentMoon(home, prev_new_moon).tuple()
         if not params['utc']:
-            full_moon = getLocalDateTime(full_moon)
-            new_moon = getLocalDateTime(new_moon)
-            crescent_moon = getLocalDateTime(crescent_moon)
-        moons = {new_moon[:6]: 'new', full_moon[:6]: 'full', crescent_moon[:6]: 'crescent'}
+            next_full_moon = getLocalDateTime(next_full_moon)
+            next_new_moon = getLocalDateTime(next_new_moon)
+            next_crescent_moon = getLocalDateTime(next_crescent_moon)
+            prev_full_moon = getLocalDateTime(prev_full_moon)
+            prev_new_moon = getLocalDateTime(prev_new_moon)
+            prev_crescent_moon = getLocalDateTime(prev_crescent_moon)
+        moons = {next_new_moon[:6]: 'New', next_full_moon[:6]: 'Full', next_crescent_moon[:6]: 'Crescent',
+                prev_new_moon[:6]: 'New', prev_full_moon[:6]: 'Full', prev_crescent_moon[:6]: 'Crescent' }
         moon_keys = moons.keys()            # keys are ephem dates in tuple format when printed
         moon_keys.sort()                    # NB sort works correctly on tuples !
         print """<table cellpadding=\"10\" cellspacing=\"5\">
-            <tr><th class=\"seasons\">Next Moon</th></tr>
-            <tr><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td>
-            </tr><tr><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>""" % (
+            <tr><th class=\"seasons\">Moon</th></tr>
+            <tr><td>Prev</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td>Next</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>""" % (
             moons[moon_keys[0]], moon_keys[0][0], moon_keys[0][1], moon_keys[0][2], moon_keys[0][3], moon_keys[0][4], moon_keys[0][5], 
             moons[moon_keys[1]], moon_keys[1][0], moon_keys[1][1], moon_keys[1][2], moon_keys[1][3], moon_keys[1][4], moon_keys[1][5], 
-            moons[moon_keys[2]], moon_keys[2][0], moon_keys[2][1], moon_keys[2][2], moon_keys[2][3], moon_keys[2][4], moon_keys[2][5]) 
+            moons[moon_keys[2]], moon_keys[2][0], moon_keys[2][1], moon_keys[2][2], moon_keys[2][3], moon_keys[2][4], moon_keys[2][5],
+            moons[moon_keys[3]], moon_keys[3][0], moon_keys[3][1], moon_keys[3][2], moon_keys[3][3], moon_keys[3][4], moon_keys[3][5], 
+            moons[moon_keys[4]], moon_keys[4][0], moon_keys[4][1], moon_keys[4][2], moon_keys[4][3], moon_keys[4][4], moon_keys[4][5],
+            moons[moon_keys[5]], moon_keys[5][0], moon_keys[5][1], moon_keys[5][2], moon_keys[5][3], moon_keys[5][4], moon_keys[5][5])
         altaz = params['altaz'] and ('Altitude', 'Azimuth') or ('RA', 'Dec')
         print '<p><small>Times are %s. Click column heading to sort.</small></p>' % (params['utc'] and 'UTC' or 'local')
         print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % (altaz)
@@ -723,20 +736,14 @@ def getMessierEdb(m):
         pass
     return edb
 
-def getCrescentMoon(home):
+def getCrescentMoon(home, date):
     """ return the next date time in ephem format of crescent moon
     
     where sun has set and moon > 10 degrees above horizon after sun set"""
     moon_minimum = ephem.degrees('09:00:00')
     _home_date = home.date
-    next_new = ephem.next_new_moon(home.date)
-    prev_new = ephem.previous_new_moon(home.date)
-    # Step back a day if necessary, which is that time ± a few hours of the new moon,
-    # so that today's crescent moon is calculated for today, rather than next month
-    if int(home.date) == int(prev_new):
-        home.date -= 1
-    else:
-        home.date = next_new
+    home.date = date
+    home.date -= 1                              # take it back a day to ensure we find the real next crescent time
     s = ephem.Sun(home)
     m = ephem.Moon(home)
     home.date = home.next_setting(s)

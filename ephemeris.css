@@ -93,12 +93,13 @@ table, tr, td {
     border: none;
 }
 
-#output th.seasons {
-    background: #eef;
-}
-
 td {
     height: 1.5em;
     vertical-align: bottom;
 }
+
+#output th.seasons {
+    background: #eef;
+}
+
 

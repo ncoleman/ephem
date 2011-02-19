@@ -54,6 +54,8 @@ params = {
     'mars' : None,
     'jupiter' : None,
     'saturn' : None,
+    'uranus': None,
+    'neptune': None,
     'altaz' : True,
     'above_horiz' : False,
     'minmag' : None
@@ -233,7 +235,7 @@ def main():
         moon_keys.sort()                    # NB sort works correctly on tuples !
         print """<table cellpadding=\"10\" cellspacing=\"5\">
             <tr><th class=\"seasons\">Moon</th></tr>
-            <tr><td>Prev</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td>Previous</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
             <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
             <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
             <tr><td>Next</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
@@ -249,7 +251,7 @@ def main():
         print '<p><small>Times are %s. Click column heading to sort.</small></p>' % (params['utc'] and 'UTC' or 'local')
         print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % (altaz)
         format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
-        for body in ('sun','moon','mercury','venus','mars','jupiter','saturn'):
+        for body in ('sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune'):
             params[body].compute(home)
             if params['above_horiz'] and params[body].alt < 0:
                 continue
@@ -361,6 +363,8 @@ def doEphemStuff():
     params['mars'] = ephem.Mars(home)
     params['jupiter'] = ephem.Jupiter(home)
     params['saturn'] = ephem.Saturn(home)
+    params['uranus'] = ephem.Uranus(home)
+    params['neptune'] = ephem.Neptune(home)
     return home
 
 
@@ -682,6 +686,8 @@ def renderForm():
     <input type="checkbox" name="mars" value="True" checked="checked"/> Mars<br />
     <input type="checkbox" name="jupiter" value="True" checked="checked"/> Jupiter<br />
     <input type="checkbox" name="saturn" value="True" checked="checked"/> Saturn<br />
+    <input type="checkbox" name="uranus" value="True" checked="checked"/> Uranus<br />
+    <input type="checkbox" name="neptune" value="True" checked="checked"/> Neptune<br />
     </fieldset><fieldset><legend>Stars &amp; Nebulae</legend>
     <small>Multiple selections use the control key.  For your convenience: <a href="http://en.wikipedia.org/wiki/List_of_Messier_objects" target=\"_blank\">list of Messiers</a></small><br /> 
     <select name="star" multiple="multiple" > """ % form

@@ -186,20 +186,34 @@ def main():
         print '<p>Times are %s except where specified.</p>' % (params['utc'] and 'UTC' or 'local for ' + params['tzname'])
         print "<p>For time:  <br />%s Local <br />%s UTC <br />Timezone: %s<br /></p><p>Location:  %s, lat %s long %s<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]),  home.date, params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
         print "<p>Local noon: %02d:%02d:%02d</p>" % getLocalDateTime(params['sun'].transit_time.tuple())[3:6]
-        vernal = ephem.next_vernal_equinox(home.date).tuple()
-        autumnal = ephem.next_autumnal_equinox(home.date).tuple()
-        summer = ephem.next_summer_solstice(home.date).tuple()
-        winter = ephem.next_winter_solstice(home.date).tuple()
+        previous_vernal = ephem.previous_vernal_equinox(home.date).tuple()
+        previous_autumnal = ephem.previous_autumnal_equinox(home.date).tuple()
+        previous_summer = ephem.previous_summer_solstice(home.date).tuple()
+        previous_winter = ephem.previous_winter_solstice(home.date).tuple()
+        next_vernal = ephem.next_vernal_equinox(home.date).tuple()
+        next_autumnal = ephem.next_autumnal_equinox(home.date).tuple()
+        next_summer = ephem.next_summer_solstice(home.date).tuple()
+        next_winter = ephem.next_winter_solstice(home.date).tuple()
         if not params['utc']:
-            vernal = getLocalDateTime(vernal)
-            autumnal = getLocalDateTime(autumnal)
-            summer = getLocalDateTime(summer)
-            winter = getLocalDateTime(winter)
+            previous_vernal = getLocalDateTime(previous_vernal)
+            previous_autumnal = getLocalDateTime(previous_autumnal)
+            previous_summer = getLocalDateTime(previous_summer)
+            previous_winter = getLocalDateTime(previous_winter)
+            next_vernal = getLocalDateTime(next_vernal)
+            next_autumnal = getLocalDateTime(next_autumnal)
+            next_summer = getLocalDateTime(next_summer)
+            next_winter = getLocalDateTime(next_winter)
         print """<table cellpadding=\"10\" cellspacing=\"5\" >
-            <tr><th class=\"seasons\">Seasons</th></tr>
-            <tr><td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>""" % (
-                    vernal[:6] + autumnal[:6] + summer[:6] + winter[:6])
+            <tr><tr><th class=\"seasons\">Seasons</th></tr>
+            <tr><td>Previous</td>
+            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td>Next</td>
+            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>
+            """ % (
+                    previous_vernal[:6] + previous_autumnal[:6] + previous_summer[:6] + previous_winter[:6] +
+                    next_vernal[:6] + next_autumnal[:6] + next_summer[:6] + next_winter[:6])
         next_full_moon = ephem.next_full_moon(home.date).tuple()
         next_new_moon = ephem.next_new_moon(home.date).tuple()
         next_crescent_moon = getCrescentMoon(home, next_new_moon).tuple()
@@ -331,7 +345,7 @@ def doEphemStuff():
         home.elev = 0.0
         home.pressure = 1010.0
     else:
-        params['city'] = 'Perth, Aust'
+        params['city'] = 'London'
         home = ephem.city(params['city'])
     if params['temp']:
         home.temp = params['temp']
@@ -777,6 +791,7 @@ def renderHTMLIntro():
         <li>You can use the handy list of timezones to enter your timezone, which is needed if you are using your local time.</li>
         <li>You can choose your location from a list of provided cities, or you can enter your latitude and longitude in a variety of formats.</li>
         <li>You can fine tune things with the local temperature, pressure and altitude, but you don't have to.</li>
+        <li>You get the seasons and the moon events.</li>
         <li>You get all the naked-eye visible planets.</li>
         <li>You can also select a range of common stars and messier objects.</li>
         <li>You can do some filtering to exclude irrelevant objects.</li>
@@ -823,7 +838,6 @@ def renderHTMLIntro():
     <h3>Restrictions</h3>
     <ul>
     <li><em>Date restrictions</em> are 1 A.D. &mdash; 9999 A.D., due to python's limited date module which cannot go further back than 1 A.D.  The astronomical library I use can go further back, but I haven't implemented that feature because it would be a lot of work for the very few times it would be used.  Email me if this is an issue for you and I might change my mind.</li>
-    <li>The crescent moon calculations are problematic within three days after the new moon.  It might be a crescent moon tonight, but the calculator will show it as being next month.  The reason is that calculations look forward, and the next new moon is a month away as far as the calculations are concerned.  If today is around a new moon (look for phase ≈ 0), set the date to a few days ago and see if the crescent moon is today.</li>
     </ul>
     <h3>About</h3>
     <p>This is version 1.1, usable but not tidy.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>

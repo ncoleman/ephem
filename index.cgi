@@ -7,7 +7,7 @@ import cgi, cgitb
 import os
 import Cookie
 from datetime import datetime
-from sys import exit
+#from sys import exit
 import ephem
 import pytz
 

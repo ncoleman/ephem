@@ -5,9 +5,9 @@
 from __future__ import with_statement
 import cgi, cgitb
 import os
+import re
 import Cookie
 from datetime import datetime
-#from sys import exit
 import ephem
 import pytz
 
@@ -66,7 +66,6 @@ booleans = ('processed', 'now', 'utc', 'save', 'altaz', 'above_horiz')
 
 def main():
     cgitb.enable()
-    global params
     valid = True
     validMsg = ''
     tick = datetime.now()
@@ -419,7 +418,6 @@ def renderHTMLFooter():
 
 
 def getCookies():
-    global params
     cookie = Cookie.SimpleCookie()
     cookie.load(os.environ['HTTP_COOKIE'])
     for key in cookie.keys():
@@ -446,7 +444,6 @@ def validateParams():
     validType = validateMsgType = True
     validRelationship = validateMsgRelationship = ''
     def validateTypes():
-        import re
         valid = True
         validateMsg = ''
         # 00:00:00 or 00.0000

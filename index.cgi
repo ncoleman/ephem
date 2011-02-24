@@ -1,5 +1,6 @@
 #!/home/nickcoleman/local/bin/python -Wignore::DeprecationWarning
 #coding=utf-8
+#!/usr/bin/env python -Wignore::DeprecationWarning
 
 from __future__ import with_statement
 import cgi, cgitb
@@ -250,7 +251,7 @@ def main():
         altaz = params['altaz'] and ('Altitude', 'Azimuth') or ('RA', 'Dec')
         print '<p><small>Times are %s. Click column heading to sort.</small></p>' % (params['utc'] and 'UTC' or 'local')
         print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % (altaz)
-        format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+        print_fmt = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
         for body in ('sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune'):
             params[body].compute(home)
             if params['above_horiz'] and params[body].alt < 0:
@@ -265,7 +266,7 @@ def main():
             settime = '%02.0f:%02.0f' % (stime[3], stime[4])
             params[body].compute(home)
             altazradec = params['altaz'] and (params[body].alt, params[body].az) or (params[body].ra, params[body].dec)
-            print format % (body.capitalize(), roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(params[body].az), ephem.constellation(params[body])[1][:6], params[body].mag, params[body].phase, risetime, settime, roundAngle(params[body].transit_alt))
+            print print_fmt % (body.capitalize(), roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(params[body].az), ephem.constellation(params[body])[1][:6], params[body].mag, params[body].phase, risetime, settime, roundAngle(params[body].transit_alt))
         print """</table>"""
 
         print '<table class="sortable" id="results_stars" ><tr><th>Star</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % altaz
@@ -293,8 +294,8 @@ def main():
             s.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (s.name, roundAngle(s.az), roundAngle(s.alt), s.mag)
             altazradec = params['altaz'] and (s.alt, s.az) or (s.ra, s.dec)
-            format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
-            print format % (s.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(s.az), ephem.constellation(s)[1][:6], s.mag, risetime, settime, roundAngle(s.transit_alt))
+            print_fmt = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+            print print_fmt % (s.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(s.az), ephem.constellation(s)[1][:6], s.mag, risetime, settime, roundAngle(s.transit_alt))
         print '</table>'
 
         print '<table class="sortable" id="results_messiers" ><tr><th>Messier</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % altaz
@@ -322,8 +323,8 @@ def main():
             m.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (m.name, roundAngle(m.az), roundAngle(m.alt), m.mag)
             altazradec = params['altaz'] and (m.alt, m.az) or (m.ra, m.dec)
-            format = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
-            print format % (m.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(m.az), ephem.constellation(m)[1][:6], float(m.mag), risetime, settime, roundAngle(m.transit_alt))
+            print_fmt = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+            print print_fmt % (m.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(m.az), ephem.constellation(m)[1][:6], float(m.mag), risetime, settime, roundAngle(m.transit_alt))
         print '</table>'
             
         tock = datetime.now()
@@ -673,7 +674,7 @@ def renderForm():
     Latitude: <input type="text" name="lat" value="%(lat)s" size="10" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />
     Longitude: <input type="text" name="long" value="%(long)s" size="10" /><br />
     <hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />
-    Temperature: <input type="text" name="temp" value="%(temp)s" size="5" />°C  <small>default: 15C.</small><br />
+    Temperature: <input type="text" name="temp" value="%(temp)s" size="5" />°C  <small>default: 15°C</small><br />
     Elevation: <input type="text" name="elev" value="%(elev)s" size="5" />metres <small>default: 0.0m</small><br />
     Barometric Pressure: <input type="text" name="pressure" value="%(pressure)s" size="5" />mBar <small>default: 1010mB</small><br />
     </fieldset></fieldset>

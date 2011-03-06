@@ -47,6 +47,7 @@ div#input {
 }
 
 div#output {
+    font-size: 85%;
     width: 50%;
     padding-left: 1em;
 }
@@ -68,7 +69,6 @@ div#output {
 }
 
 #output table {
-	font-size: 90%;
 	border: 1px solid gray;
 	margin-top: 1em;
 	padding: 1em;

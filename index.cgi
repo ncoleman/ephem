@@ -812,6 +812,7 @@ def renderHTMLIntro():
         <li>You get the seasons and the moon events.</li>
         <li>You get all the naked-eye visible planets.</li>
         <li>You can also select a range of common stars and messier objects.</li>
+        <li><i>Hint:</i>To see if a constellation is up, select all stars, and choose "Only above the horizon".  Then sort list of stars by constellation.</li>
         <li>You can do some filtering to exclude irrelevant objects.</li>
         <li>You can save your settings for next time.</li>
         <li>Two <i>Submit</i> buttons, one top and one bottom, for when you are just changing the date and don't want to scroll down to the bottom button.</li>

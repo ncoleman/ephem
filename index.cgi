@@ -391,6 +391,7 @@ def renderHTMLHead():
             <meta name="keywords" content="ephemeris, online, online epheris, xephem, python, pyephem" />
             <meta name="description" content="web based online ephemeris written in Python using the pyephem module" />
             <link rel="stylesheet" href="ephemeris.css" type="text/css" />
+            <link rel="shortcut icon" href="favicon.ico" />
             <script type="text/javascript" src="js/sortable.js"></script>
             <title>Online Ephemeris</title>
         </head>
@@ -849,11 +850,12 @@ def renderHTMLIntro():
     <p>Tested on google-chrome, opera and firefox.  Not yet tested on IE.</p>
     <h3>To Do</h3>
     <ul>
-    <!-- <li>Fix Moon next rise bug.</li> -->
     <li>Add options to allow different fields in the output: next/prev rise/alt; transit time/alt.</li>
     <li>create star charts. I think I know how to do it and am now mulling over which projection method to use.  I'm leaning towards stereographic at the moment.</li>
     <li>Add ability to display satellite passes: ISS and Hubble.</li>
     </ul>
+    <h3>Credit</h3>
+    <p>The telescope icon is courtesy of the <a href="http://www.oxygen-icons.org/">Oxygen Icon Team</a> under the Creative Common Licence.</p>
     <a href="#top">Top of page</a>
     </div><!-- intro -->
     """

@@ -186,7 +186,12 @@ def main():
     # render output
     if params['processed'] and valid:
         print '<p>Times are %s except where specified.</p>' % (params['utc'] and 'UTC' or 'local for ' + params['tzname'])
-        print "<p>For time:  <br />%s Local <br />%s UTC <br />Timezone: %s<br /></p><p>Location:  %s, lat %s long %s<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]).strftime("%F %R"),  home.date.datetime().strftime("%F %R"), params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
+        try:
+            print "<p>For time:  <br />%s Local <br />%s UTC <br />Timezone: %s<br /></p><p>Location:  %s, lat %s long %s<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]).strftime("%F %R"),  home.date.datetime().strftime("%F %R"), params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
+        except ValueError:
+            # datetime.strftime can't be earlier than 1900, raises ValueError. I prefer the output for strftime, so use it
+            # whenever possible, but handle the exceptional case as well by not using strftime then.
+            print "<p>For time:  <br />%s Local <br />%s UTC <br />Timezone: %s<br /></p><p>Location:  %s, lat %s long %s<br />Parameters: temperature %sC, elevation %4.0f metres, barometer %4.0f mBar.</p>" % (datetime(*getLocalDateTime(home.date.tuple())[:6]),  home.date.datetime(), params['tzname'], home.name, home.lat, home.long, home.temp, home.elev, home.pressure)
         print "<p>Local noon: %02d:%02d:%02d</p>" % getLocalDateTime(params['sun'].transit_time.tuple())[3:6]
         previous_vernal = ephem.previous_vernal_equinox(home.date).tuple()
         previous_autumnal = ephem.previous_autumnal_equinox(home.date).tuple()

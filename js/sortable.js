@@ -89,7 +89,7 @@ function ts_resortTable(lnk) {
 	if (itm.match(/^\d\d[\/-]\d\d[\/-]\d\d$/)) sortfn = ts_sort_date;
 	if (itm.match(/^\d\d:\d\d$/)) sortfn = ts_sort_time;		// NJC 09/15/2010 added this for my ephem table
 	if (itm.match(/^[£$€]/)) sortfn = ts_sort_currency;
-	if (itm.match(/^[\d\.]+$/)) sortfn = ts_sort_numeric;
+	if (itm.match(/^-?[\d\.]+$/)) sortfn = ts_sort_numeric;		// NJC 03/04/2011 added -? to regex for negative numbers
 	SORT_COLUMN_INDEX = column;
 	var firstRow = new Array();
 	var newRows = new Array();

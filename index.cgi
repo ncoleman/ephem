@@ -855,7 +855,7 @@ def renderHTMLIntro():
     <li>Add ability to display satellite passes: ISS and Hubble.</li>
     </ul>
     <h3>Credit</h3>
-    <p>The telescope icon is courtesy of the <a href="http://www.oxygen-icons.org/">Oxygen Icon Team</a> under the Creative Common Licence.</p>
+    <p>The telescope icon is courtesy of the <a href="http://www.oxygen-icons.org/">Oxygen Icon Team</a> under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Common Licence</a>.</p>
     <a href="#top">Top of page</a>
     </div><!-- intro -->
     """

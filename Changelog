@@ -19,6 +19,7 @@ for lists, minor box sizes.
 *   02/16/2011  added previous moon capability
 *   02/18/2011  added previous seasons capability
 *   02/18/2011  added Uranus, Neptune
+*   02/24/2011  some minor tidying up (from pylint), see git's log for more
 
 
 TODO

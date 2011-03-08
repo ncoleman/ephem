@@ -410,6 +410,14 @@ def renderHTMLFooter():
                 var elements = document.getElementsByName('now');
                 elements[0].checked = false;        // poss Bug: assumes only one element named 'now'
             }
+
+            function uncheckLocation(){
+                document.getElementsByName('lat')[0].value = ""
+                document.getElementsByName('long')[0].value = ""
+                document.getElementsByName('elev')[0].value = ""
+                document.getElementsByName('temp')[0].value = ""
+                document.getElementsByName('pressure')[0].value = ""
+            }
         </script>
         <script type="text/javascript"> 
         <!--
@@ -668,7 +676,7 @@ def renderForm():
     </select></td></tr></table></fieldset>
     <fieldset><legend><b>Location</b></legend>
     <fieldset><legend> Choose a city </legend>
-    City:  <select name="city">
+    City:  <select name="city" onfocus="uncheckLocation()">
     """
     print  cities
     print """

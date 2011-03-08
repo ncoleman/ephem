@@ -20,6 +20,10 @@ for lists, minor box sizes.
 *   02/18/2011  added previous seasons capability
 *   02/18/2011  added Uranus, Neptune
 *   02/24/2011  some minor tidying up (from pylint), see git's log for more
+*   03/03?/2011 prettier output for local and UTC date and time used for
+calcs.
+*   03/07/2011  added JS handler for city dropdown to set all location and
+parameter values to "" when dropdown list is clicked.
 
 
 TODO

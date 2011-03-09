@@ -31,6 +31,7 @@ params = {
     'processed' : False,
     'now' : False,
     'save' : False,
+    'second': 0.0,          # to resolve rounding errors in the Date float
     'minute' : None,
     'hour' : None,
     'day' : None,
@@ -731,10 +732,10 @@ def renderForm():
 
 def setUTCDate():
     if params['utc']:
-        params['utc_date'] = (params['year'], params['month'], params['day'], params['hour'], params['minute'])
+        params['utc_date'] = (params['year'], params['month'], params['day'], params['hour'], params['minute'], params['second'])
     else:
         # from http://stackoverflow.com/questions/1357711/pytz-utc-conversion
-        d = datetime(params['year'], params['month'], params['day'], params['hour'], params['minute'])
+        d = datetime(params['year'], params['month'], params['day'], params['hour'], params['minute'], params['second'])
         tz = pytz.timezone(params['tzname'])
         _date = tz.normalize(tz.localize(d).astimezone(pytz.utc))
         params['utc_date'] = _date.utctimetuple()[:6]

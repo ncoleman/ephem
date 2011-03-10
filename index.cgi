@@ -284,16 +284,17 @@ def main():
                 continue
             if params['minmag'] and s.mag > params['minmag']:                       # only bother if star is brighter than ( < ) X
                 continue
-            try:
-                rtime,stime = getNextRiseSet(s, home)
+            rtime,stime = getNextRiseSet(s, home)
+            if rtime[0] == -1 or stime[0] == -1:
+                # don't want to do any formatting
+                risetime = -1
+                settime = -1
+            else:
                 if not params['utc']:
                     rtime = getLocalDateTime(rtime)
                     stime = getLocalDateTime(stime)
                 risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
                 settime = '%02.0f:%02.0f' % (stime[3], stime[4])
-            except (ValueError):                                # either never sets or never rises
-                risetime = -1
-                settime = -1
             s.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (s.name, roundAngle(s.az), roundAngle(s.alt), s.mag)
             altazradec = params['altaz'] and (s.alt, s.az) or (s.ra, s.dec)
@@ -311,16 +312,17 @@ def main():
                 continue
             if params['minmag'] and m.mag > params['minmag']:
                 continue
-            try:
-                rtime,stime = getNextRiseSet(m, home)
+            rtime,stime = getNextRiseSet(m, home)
+            if rtime[0] == -1 or stime[0] == -1:
+                # don't want to do any formatting
+                risetime = -1
+                settime = -1
+            else:
                 if not params['utc']:
                     rtime = getLocalDateTime(rtime)
                     stime = getLocalDateTime(stime)
                 risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
                 settime = '%02.0f:%02.0f' % (stime[3], stime[4])
-            except (ValueError):                                # either never sets or never rises
-                risetime = -1
-                settime = -1
             m.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (m.name, roundAngle(m.az), roundAngle(m.alt), m.mag)
             altazradec = params['altaz'] and (m.alt, m.az) or (m.ra, m.dec)
@@ -801,11 +803,14 @@ def getCrescentMoon(home, date):
 def getNextRiseSet(body, home):
     """ Returns tuples for next rise and set for body.  Assures home.date is not changed."""
     _home_date = home.date
-    body.compute(home)
-    rise = home.next_rising(body).tuple()
-    home.date = _home_date
-    body.compute(home)
-    set = home.next_setting(body).tuple()
+    try:
+        body.compute(home)
+        rise = home.next_rising(body).tuple()
+        home.date = _home_date
+        body.compute(home)
+        set = home.next_setting(body).tuple()
+    except (ephem.AlwaysUpError, ephem.NeverUpError):
+        rise,set = (-1,),(-1,)
     home.date = _home_date
     return rise, set
 

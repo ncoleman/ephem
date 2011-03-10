@@ -98,6 +98,10 @@ td {
     vertical-align: bottom;
 }
 
+table.seasons {
+    font-size: 90%;
+}
+
 #output th.seasons {
     background: #eef;
 }

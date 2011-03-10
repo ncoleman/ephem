@@ -1,6 +1,8 @@
 #!/home/nickcoleman/local/bin/python -Wignore::DeprecationWarning
 #coding=utf-8
 #!/usr/bin/env python -Wignore::DeprecationWarning
+#!/usr/bin/python -Wignore::DeprecationWarning
+#!/home/nickcoleman/local/bin/python -Wignore::DeprecationWarning
 
 from __future__ import with_statement
 import cgi, cgitb
@@ -211,17 +213,17 @@ def main():
             next_autumnal = getLocalDateTime(next_autumnal)
             next_summer = getLocalDateTime(next_summer)
             next_winter = getLocalDateTime(next_winter)
-        print """<table cellpadding=\"10\" cellspacing=\"5\" >
+        print """<table cellpadding=\"5\" cellspacing=\"5\" class=\"seasons\" >
             <tr><tr><th class=\"seasons\">Seasons</th></tr>
             <tr><td>Previous</td>
-            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d</td><td>%d-%02d-%02d %02d:%02d</td></tr>
             <tr><td>Next</td>
-            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>
+            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d</td><td>%d-%02d-%02d %02d:%02d</td></tr></table>
             """ % (
-                    previous_vernal[:6] + previous_autumnal[:6] + previous_summer[:6] + previous_winter[:6] +
-                    next_vernal[:6] + next_autumnal[:6] + next_summer[:6] + next_winter[:6])
+                    previous_vernal[:5] + previous_autumnal[:5] + previous_summer[:5] + previous_winter[:5] +
+                    next_vernal[:5] + next_autumnal[:5] + next_summer[:5] + next_winter[:5])
         next_full_moon = ephem.next_full_moon(home.date).tuple()
         next_new_moon = ephem.next_new_moon(home.date).tuple()
         next_crescent_moon = getCrescentMoon(home, next_new_moon).tuple()
@@ -239,20 +241,20 @@ def main():
                 prev_new_moon[:6]: 'New', prev_full_moon[:6]: 'Full', prev_crescent_moon[:6]: 'Crescent' }
         moon_keys = moons.keys()            # keys are ephem dates in tuple format when printed
         moon_keys.sort()                    # NB sort works correctly on tuples !
-        print """<table cellpadding=\"10\" cellspacing=\"5\">
+        print """<table cellpadding=\"10\" cellspacing=\"5\" class=\"seasons\" >
             <tr><th class=\"seasons\">Moon</th></tr>
-            <tr><td>Previous</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td>Next</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>""" % (
-            moons[moon_keys[0]], moon_keys[0][0], moon_keys[0][1], moon_keys[0][2], moon_keys[0][3], moon_keys[0][4], moon_keys[0][5], 
-            moons[moon_keys[1]], moon_keys[1][0], moon_keys[1][1], moon_keys[1][2], moon_keys[1][3], moon_keys[1][4], moon_keys[1][5], 
-            moons[moon_keys[2]], moon_keys[2][0], moon_keys[2][1], moon_keys[2][2], moon_keys[2][3], moon_keys[2][4], moon_keys[2][5],
-            moons[moon_keys[3]], moon_keys[3][0], moon_keys[3][1], moon_keys[3][2], moon_keys[3][3], moon_keys[3][4], moon_keys[3][5], 
-            moons[moon_keys[4]], moon_keys[4][0], moon_keys[4][1], moon_keys[4][2], moon_keys[4][3], moon_keys[4][4], moon_keys[4][5],
-            moons[moon_keys[5]], moon_keys[5][0], moon_keys[5][1], moon_keys[5][2], moon_keys[5][3], moon_keys[5][4], moon_keys[5][5])
+            <tr><td>Previous</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td>Next</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr></table>""" % (
+            moons[moon_keys[0]], moon_keys[0][0], moon_keys[0][1], moon_keys[0][2], moon_keys[0][3], moon_keys[0][4], 
+            moons[moon_keys[1]], moon_keys[1][0], moon_keys[1][1], moon_keys[1][2], moon_keys[1][3], moon_keys[1][4], 
+            moons[moon_keys[2]], moon_keys[2][0], moon_keys[2][1], moon_keys[2][2], moon_keys[2][3], moon_keys[2][4],
+            moons[moon_keys[3]], moon_keys[3][0], moon_keys[3][1], moon_keys[3][2], moon_keys[3][3], moon_keys[3][4], 
+            moons[moon_keys[4]], moon_keys[4][0], moon_keys[4][1], moon_keys[4][2], moon_keys[4][3], moon_keys[4][4],
+            moons[moon_keys[5]], moon_keys[5][0], moon_keys[5][1], moon_keys[5][2], moon_keys[5][3], moon_keys[5][4])
         altaz = params['altaz'] and ('Altitude', 'Azimuth') or ('RA', 'Dec')
         print '<p><small>Times are %s. Click column heading to sort.</small></p>' % (params['utc'] and 'UTC' or 'local')
         print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % (altaz)
@@ -284,16 +286,17 @@ def main():
                 continue
             if params['minmag'] and s.mag > params['minmag']:                       # only bother if star is brighter than ( < ) X
                 continue
-            try:
-                rtime,stime = getNextRiseSet(s, home)
+            rtime,stime = getNextRiseSet(s, home)
+            if rtime[0] == -1 or stime[0] == -1:
+                # don't want to do any formatting
+                risetime = -1
+                settime = -1
+            else:
                 if not params['utc']:
                     rtime = getLocalDateTime(rtime)
                     stime = getLocalDateTime(stime)
                 risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
                 settime = '%02.0f:%02.0f' % (stime[3], stime[4])
-            except (ValueError):                                # either never sets or never rises
-                risetime = -1
-                settime = -1
             s.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (s.name, roundAngle(s.az), roundAngle(s.alt), s.mag)
             altazradec = params['altaz'] and (s.alt, s.az) or (s.ra, s.dec)
@@ -311,16 +314,17 @@ def main():
                 continue
             if params['minmag'] and m.mag > params['minmag']:
                 continue
-            try:
-                rtime,stime = getNextRiseSet(m, home)
+            rtime,stime = getNextRiseSet(m, home)
+            if rtime[0] == -1 or stime[0] == -1:
+                # don't want to do any formatting
+                risetime = -1
+                settime = -1
+            else:
                 if not params['utc']:
                     rtime = getLocalDateTime(rtime)
                     stime = getLocalDateTime(stime)
                 risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
                 settime = '%02.0f:%02.0f' % (stime[3], stime[4])
-            except (ValueError):                                # either never sets or never rises
-                risetime = -1
-                settime = -1
             m.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (m.name, roundAngle(m.az), roundAngle(m.alt), m.mag)
             altazradec = params['altaz'] and (m.alt, m.az) or (m.ra, m.dec)
@@ -801,11 +805,14 @@ def getCrescentMoon(home, date):
 def getNextRiseSet(body, home):
     """ Returns tuples for next rise and set for body.  Assures home.date is not changed."""
     _home_date = home.date
-    body.compute(home)
-    rise = home.next_rising(body).tuple()
-    home.date = _home_date
-    body.compute(home)
-    set = home.next_setting(body).tuple()
+    try:
+        body.compute(home)
+        rise = home.next_rising(body).tuple()
+        home.date = _home_date
+        body.compute(home)
+        set = home.next_setting(body).tuple()
+    except (ephem.AlwaysUpError, ephem.NeverUpError):
+        rise,set = (-1,),(-1,)
     home.date = _home_date
     return rise, set
 

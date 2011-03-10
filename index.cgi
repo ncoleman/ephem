@@ -421,6 +421,11 @@ def renderHTMLFooter():
                 document.getElementsByName('temp')[0].value = ""
                 document.getElementsByName('pressure')[0].value = ""
             }
+
+            function uncheckCity(){
+                document.getElementsByName('city')[0].value = ""
+            }
+
         </script>
         <script type="text/javascript"> 
         <!--
@@ -685,8 +690,8 @@ def renderForm():
     print """
     </select> <small>Overrides any latitude and longitude below</small></fieldset><fieldset><legend>or input location manually</legend>
     <small>West, South negative</small><br />
-    Latitude: <input type="text" name="lat" value="%(lat)s" size="10" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />
-    Longitude: <input type="text" name="long" value="%(long)s" size="10" /><br />
+    Latitude: <input type="text" name="lat" value="%(lat)s" size="10" onfocus="uncheckCity()" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />
+    Longitude: <input type="text" name="long" value="%(long)s" size="10" onfocus="uncheckCity()" /><br />
     <hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />
     Temperature: <input type="text" name="temp" value="%(temp)s" size="5" />°C  <small>default: 15°C</small><br />
     Elevation: <input type="text" name="elev" value="%(elev)s" size="5" />metres <small>default: 0.0m</small><br />

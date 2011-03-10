@@ -241,7 +241,7 @@ def main():
                 prev_new_moon[:6]: 'New', prev_full_moon[:6]: 'Full', prev_crescent_moon[:6]: 'Crescent' }
         moon_keys = moons.keys()            # keys are ephem dates in tuple format when printed
         moon_keys.sort()                    # NB sort works correctly on tuples !
-        print """<table cellpadding=\"10\" cellspacing=\"5\" class=\"seasons\" >
+        print """<table cellpadding=\"5\" cellspacing=\"5\" class=\"seasons\" >
             <tr><th class=\"seasons\">Moon</th></tr>
             <tr><td>Previous</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
             <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>

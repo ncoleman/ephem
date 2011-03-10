@@ -263,12 +263,10 @@ def main():
             params[body].compute(home)
             if params['above_horiz'] and params[body].alt < 0:
                 continue
-            if params['utc']:
-                rtime = home.next_rising(params[body]).tuple()
-                stime = home.next_setting(params[body]).tuple()
-            else:
-                rtime = getLocalDateTime(home.next_rising(params[body]).tuple())
-                stime = getLocalDateTime(home.next_setting(params[body]).tuple())
+            rtime,stime = getNextRiseSet(params[body], home)
+            if not params['utc']:
+                rtime = getLocalDateTime(rtime)
+                stime = getLocalDateTime(stime)
             risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
             settime = '%02.0f:%02.0f' % (stime[3], stime[4])
             params[body].compute(home)
@@ -287,12 +285,10 @@ def main():
             if params['minmag'] and s.mag > params['minmag']:                       # only bother if star is brighter than ( < ) X
                 continue
             try:
-                if params['utc']:
-                    rtime = home.next_rising(s).tuple()
-                    stime = home.next_setting(s).tuple()
-                else:
-                    rtime = getLocalDateTime(home.next_rising(s).tuple())
-                    stime = getLocalDateTime(home.next_setting(s).tuple())
+                rtime,stime = getNextRiseSet(s, home)
+                if not params['utc']:
+                    rtime = getLocalDateTime(rtime)
+                    stime = getLocalDateTime(stime)
                 risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
                 settime = '%02.0f:%02.0f' % (stime[3], stime[4])
             except (ValueError):                                # either never sets or never rises
@@ -316,12 +312,10 @@ def main():
             if params['minmag'] and m.mag > params['minmag']:
                 continue
             try:
-                if params['utc']:
-                    rtime = home.next_rising(m).tuple()
-                    stime = home.next_setting(m).tuple()
-                else:
-                    rtime = getLocalDateTime(home.next_rising(m).tuple())
-                    stime = getLocalDateTime(home.next_setting(m).tuple())
+                rtime,stime = getNextRiseSet(m, home)
+                if not params['utc']:
+                    rtime = getLocalDateTime(rtime)
+                    stime = getLocalDateTime(stime)
                 risetime = '%02.0f:%02.0f' % (rtime[3], rtime[4])
                 settime = '%02.0f:%02.0f' % (stime[3], stime[4])
             except (ValueError):                                # either never sets or never rises
@@ -803,6 +797,18 @@ def getCrescentMoon(home, date):
     _temp = home.date
     home.date = _home_date                                  # restore original home.date
     return ephem.date(_temp + ephem.second)                # kludge to add 1 second to avoid clashing dictionary keys after the calling function
+
+def getNextRiseSet(body, home):
+    """ Returns tuples for next rise and set for body.  Assures home.date is not changed."""
+    _home_date = home.date
+    body.compute(home)
+    rise = home.next_rising(body).tuple()
+    home.date = _home_date
+    body.compute(home)
+    set = home.next_setting(body).tuple()
+    home.date = _home_date
+    return rise, set
+
 
 def renderHTMLIntro():
     print """

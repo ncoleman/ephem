@@ -24,6 +24,8 @@ for lists, minor box sizes.
 calcs.
 *   03/07/2011  added JS handler for city dropdown to set all location and
 parameter values to "" when dropdown list is clicked.
+*   03/10/2011  fixed long-standing bug with star/messier alt and az sometimes
+incorrect
 
 
 TODO

@@ -715,8 +715,8 @@ def renderForm():
     print """
     </select></fieldset></fieldset>
     <fieldset><legend>Results</legend>
-    Display results in Alt/Az<input type="radio" name="altaz" value="True" %s />
-     RA/Dec<input type="radio" name="altaz" value="False" %s />
+    Display results in <br />&nbsp;&nbsp;Alt/Az &nbsp;<input type="radio" name="altaz" value="True" %s />
+     <br />&nbsp;&nbsp;RA/Dec<input type="radio" name="altaz" value="False" %s />
      <br />Only objects above horizon?<input type="checkbox" name="above_horiz" value="True" %s />
      <br />Only brighter than<input type="text" value="%s" name="minmag" size="3" />magnitude (lower is brighter)
     </fieldset>

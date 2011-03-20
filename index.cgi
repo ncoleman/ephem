@@ -437,12 +437,6 @@ def renderHTMLFooter():
         </body></html>"""
 
 
-def getCookies():
-    cookie = Cookie.SimpleCookie()
-    cookie.load(os.environ['HTTP_COOKIE'])
-    for key in cookie.keys():
-        params['key'] = cookie[key].value
-
 def setCookies(clear=False):
     cookie = Cookie.SimpleCookie()
     if clear:

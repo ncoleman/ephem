@@ -482,7 +482,7 @@ def validateParams():
             validateMsg += r'<p class="error">Elevation %s is invalid</p>' % params['elev']
             #params['elev'] = 0.0
             valid = False
-        if params['pressure'] and not re.match(r'^[0-9]{3,4}(\.[0-9]*)?$', str(params['pressure'])):
+        if params['pressure'] and not re.match(r'^0|([0-9]{3,4}(\.[0-9]*)?)$', str(params['pressure'])):
             validateMsg += r'<p class="error">Pressure %s is invalid</p>' % params['pressure']
             valid = False
         if params['year']:

@@ -417,8 +417,8 @@ def renderHTMLFooter():
                 document.getElementsByName('lat')[0].value = ""
                 document.getElementsByName('long')[0].value = ""
                 document.getElementsByName('elev')[0].value = ""
-                document.getElementsByName('temp')[0].value = ""
-                document.getElementsByName('pressure')[0].value = ""
+                //document.getElementsByName('temp')[0].value = ""
+                //document.getElementsByName('pressure')[0].value = ""
             }
 
             function uncheckCity(){
@@ -619,7 +619,10 @@ def renderForm():
     form['long'] = params['long'] or ''
     form['temp'] =  params['temp'] or ''
     form['elev'] = params['elev'] or ''
-    form['pressure'] =  params['pressure'] or ''
+    if params['pressure'] is not None:          # special case to allow for pressure = 0.0
+        form['pressure'] =  params['pressure']
+    else:
+        form['pressure'] =  ''
 
     stars = '<option value=""></option>'
     params['star'] += ''                  # make sure star has at least one member

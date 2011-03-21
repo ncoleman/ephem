@@ -66,6 +66,7 @@ params = {
 }
 
 booleans = ('processed', 'now', 'utc', 'save', 'altaz', 'above_horiz')
+debug = []                      # a handy set for anything, useful to store values to print out later
 
 def main():
     cgitb.enable()
@@ -116,7 +117,7 @@ def main():
                 value = cookie[key].value
                 if value and value is not "None" and value is not "False":
                     params[key] = cookie[key].value
-        #params['processed'] = True
+
     # set defaults if not already set
     else:
         params['year'], params['month'], params['day'], params['hour'], params['minute']  = datetime.utcnow().timetuple()[:5]
@@ -359,7 +360,7 @@ def doEphemStuff():
         home.temp = params['temp']
     if params['elev']:
         home.elev = params['elev']
-    if params['pressure']:
+    if params['pressure'] is not None:                      # to handle special case where pressure is 0.0
         home.pressure = params['pressure']
     home.date = ephem.Date(params['utc_date'])
     params['sun'] = ephem.Sun(home)
@@ -834,31 +835,38 @@ def renderHTMLIntro():
     </ul>
     <h3>Usage</h3>
     <ul> 
-    <li>Select the time and date, or choose Now.  Initially, it is set to current time in UTC.</li>
-    <li>Select UTC or local time and your timezone.</li>
-    <li>Select your location:</li>
+        <li>Select the time and date, or choose Now.  Initially, it is set to current time in UTC.</li>
+        <li>Select UTC or local time and your timezone.</li>
+        <li>Select your location:</li>
         <ul>
             <li>a city from the drop-down list, or</li>
             <li>enter the latitude and longitude.</li>
         </ul>
-    <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.</li>
-    <ul>
-        <li>These affect the angles only slightly.  You probably don't need to bother.</li>
-        <li>Cities come with a default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
-        <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspapers report.</li></ul></li>
+        <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.</li>
+        <ul>
+            <li>These affect the angles only slightly except for refraction when the object is very close to the horizon.  You probably don't need to bother most of the time.</li>
+            <ul>
+                <li>You do need to bother if you want really accurate rise and set times, since refraction does affect those. The difference can be a minute or two.</li>
+            </ul>
+            <li>Cities come with a default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
+            <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspapers report.</li>
+            <li>You can disable refraction by setting pressure to 0.</li>
+        </ul>
         <li>Magnitude: magnitude is a measure of brightness (or dimness, if you prefer); the dimmer the object the higher the number.  The scale ranges from negative (very bright objects) to positive (dimmer objects). Most visible stars are between roughly 1&mdash;6. </li>
         <ul>
             <li>Typically, with the naked eye you can see up to about magnitude 3 objects in an urban area, and up to about 6 in a rural area.  Binoculars increase that quite a bit, up to about 9 in a rural area.</li>
         </ul>
-    <li>Select which of the planets you wish to see (temporarily disabled; you get the lot, free!).</li>
-    <li>Select none or more stars you wish to see (use the control key to select multiple stars; ctrl-a to select all of them).</li>
-    <li>Do the same with the Messier objects.</li>
-    <li>Choose whether to display the results in Altitude/Azimuth format, or in <a href="/axs/ax.pl?http://en.wikipedia.org/wiki/Declination">Right Angle/Declination</a> format.</li>
-    <li>Choose to display only those objects that are above the horizon.</li>
-    <li>Choose to display only those objects brighter than a certain value (the lower the value the more objects are filtered out; higher values will include dimmer objects).</li>
-        <ul><li>Example: display only those objects brighter than mag 4 since you live in a city and cannot see dimmer objects anyway.  Enter 4 in the box.  The results will display everthing from magnitude -99 to 4 and will exclude everything from 4 to 99.</li></ul>
-    <li>Choose to save settings, which stores your date, timezone and location information for later so you won't have to re-enter them again.  It uses cookies so it won't work if you have cookies disabled for this site.</li>
-    <li>Clear settings removes any settings you have previously stored, e.g. you want to remove a saved city.  (It may not take effect until a browser restart.)</li>
+        <li>Select which of the planets you wish to see (temporarily disabled; you get the lot, free!).</li>
+        <li>Select none or more stars you wish to see (use the control key to select multiple stars; ctrl-a to select all of them).</li>
+        <li>Do the same with the Messier objects.</li>
+        <li>Choose whether to display the results in Altitude/Azimuth format, or in <a href="/axs/ax.pl?http://en.wikipedia.org/wiki/Declination">Right Angle/Declination</a> format.</li>
+        <li>Choose to display only those objects that are above the horizon.</li>
+        <li>Choose to display only those objects brighter than a certain value (the lower the value the more objects are filtered out; higher values will include dimmer objects).</li>
+        <ul
+            ><li>Example: display only those objects brighter than mag 4 since you live in a city and cannot see dimmer objects anyway.  Enter 4 in the box.  The results will display everthing from magnitude -99 to 4 and will exclude everything from 4 to 99.</li>
+        </ul>
+        <li>Choose to save settings, which stores your date, timezone and location information for later so you won't have to re-enter them again.  It uses cookies so it won't work if you have cookies disabled for this site.</li>
+        <li>Clear settings removes any settings you have previously stored, e.g. you want to remove a saved city.  (It may not take effect until a browser restart.)</li>
     </ul>
     <h3>Output</h3>
     <ul>

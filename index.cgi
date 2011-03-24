@@ -884,6 +884,11 @@ def renderHTMLIntro():
     <ul>
     <li><em>Date restrictions</em> are 1 A.D. &mdash; 9999 A.D., due to Python's date module which cannot go further back than 1 A.D.  The astronomical library I use can go further back, but I haven't implemented that feature because it would be a lot of work for the very few times it would be used.  Email me if this is an issue for you and I might change my mind.</li>
     <li>For years earlier than 1900, the local time and UTC time output is not formatted nicely due to a restriction in the <i>strftime</i> function in Python (restriction removed since 3.3).  This may result in odd displays such as "12:32:59.9999" instead of "12:33:00".</li>
+    <li>I use cookies to store your location and preferences, and javascript to automatically blank some input when you select a conflicting choice, like blanking latitude and longitude when you select a city. If you delete cookies and disable javascript, you will disable those useful features and might get inaccurate results.
+    <ul>
+        <li>You can view the javascript in the page's source if you wan't to check it out.</li>
+    </ul>
+    </li>
     </ul>
     <h3>About</h3>
     <p>This is version 1.1, usable but not tidy.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>

@@ -95,7 +95,11 @@ table, tr, td {
 
 td {
     height: 1.5em;
-    vertical-align: bottom;
+    vertical-align: centre;
+}
+
+td.tdleft {
+    text-align: left;
 }
 
 table.seasons {

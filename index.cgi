@@ -259,7 +259,7 @@ def main():
         altaz = params['altaz'] and ('Altitude', 'Azimuth') or ('RA', 'Dec')
         print '<p><small>Times are %s. Click column heading to sort.</small></p>' % (params['utc'] and 'UTC' or 'local')
         print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % (altaz)
-        print_fmt = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+        print_fmt = '<tr><td class=\"tdleft\">%s</td><td>%s</td><td>%3s</td><td>%3s</td><td class=\"tdleft\">&nbsp; %3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
         # For all three sections: body, star and messier, the second compute is needed because home.next_(setting|rising) sets the body's
         # compute date to that time, meaning any subsequesnt alt/az display is incorrect.  Recompute to calculate correct settings.
         for body in ('sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune'):
@@ -301,7 +301,7 @@ def main():
             s.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (s.name, roundAngle(s.az), roundAngle(s.alt), s.mag)
             altazradec = params['altaz'] and (s.alt, s.az) or (s.ra, s.dec)
-            print_fmt = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+            print_fmt = '<tr><td class=\"tdleft\">%s</td><td>%s</td><td>%3s</td><td>%3s</td><td class=\"tdleft\">&nbsp; %3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
             print print_fmt % (s.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(s.az), ephem.constellation(s)[1][:6], s.mag, risetime, settime, roundAngle(s.transit_alt))
         print '</table>'
 
@@ -329,7 +329,7 @@ def main():
             m.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (m.name, roundAngle(m.az), roundAngle(m.alt), m.mag)
             altazradec = params['altaz'] and (m.alt, m.az) or (m.ra, m.dec)
-            print_fmt = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+            print_fmt = '<tr><td class=\"tdleft\">%s</td><td>%s</td><td>%3s</td><td>%3s</td><td class=\"tdleft\">&nbsp; %3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
             print print_fmt % (m.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(m.az), ephem.constellation(m)[1][:6], float(m.mag), risetime, settime, roundAngle(m.transit_alt))
         print '</table>'
             

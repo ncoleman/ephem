@@ -692,22 +692,22 @@ def renderForm():
     </table>
     <hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />
     <table>
-    <tr><td>Temperature:</td><td><input type="text" name="temp" value="%(temp)s" size="5" /><td>°C</td></td><td><small>default: 15°C</small></td><tr>
-    <tr><td>Elevation:</td><td><input type="text" name="elev" value="%(elev)s" size="5" /><td>metres</td></td><td><small>default: 0.0m</small></td><tr>
-    <tr><td>Barometric Pressure:</td><td><input type="text" name="pressure" value="%(pressure)s" size="5" /><td>mBar</td></td><td><small>default: 1010mB</small></td><tr>
+    <tr><td>Temperature:</td><td><input type="text" name="temp" value="%(temp)s" size="5" /><td class=\"tdleft\">°C</td></td><td class=\"tdleft\"><small>default: 15°C</small></td><tr>
+    <tr><td>Elevation:</td><td><input type="text" name="elev" value="%(elev)s" size="5" /><td class=\"tdleft\">metres</td></td><td class=\"tdleft\"><small>default: 0.0m</small></td><tr>
+    <tr><td>Barometric Pressure:</td><td><input type="text" name="pressure" value="%(pressure)s" size="5" /><td class=\"tdleft\">mBar</td></td class=\"tdleft\"><td><small>default: 1010mB</small></td><tr>
     </table>
     </fieldset></fieldset>
     <fieldset><legend><b>Bodies</b></legend>
     <fieldset><legend>Solar System</legend>
-    <input type="checkbox" name="sun" value="True" checked="checked" /> Sun<br />
-    <input type="checkbox" name="moon" value="True" checked="checked" /> Moon<br />
-    <input type="checkbox" name="mercury" value="True" checked="checked"/> Mercury<br />
-    <input type="checkbox" name="venus" value="True" checked="checked"/> Venus<br />
-    <input type="checkbox" name="mars" value="True" checked="checked"/> Mars<br />
-    <input type="checkbox" name="jupiter" value="True" checked="checked"/> Jupiter<br />
-    <input type="checkbox" name="saturn" value="True" checked="checked"/> Saturn<br />
-    <input type="checkbox" name="uranus" value="True" checked="checked"/> Uranus<br />
-    <input type="checkbox" name="neptune" value="True" checked="checked"/> Neptune<br />
+    <input disabled="yes" type="checkbox" name="sun" value="True" checked="checked" /> Sun<br />
+    <input disabled="yes" type="checkbox" name="moon" value="True" checked="checked" /> Moon<br />
+    <input disabled="yes" type="checkbox" name="mercury" value="True" checked="checked"/> Mercury<br />
+    <input disabled="yes" type="checkbox" name="venus" value="True" checked="checked"/> Venus<br />
+    <input disabled="yes" type="checkbox" name="mars" value="True" checked="checked"/> Mars<br />
+    <input disabled="yes" type="checkbox" name="jupiter" value="True" checked="checked"/> Jupiter<br />
+    <input disabled="yes" type="checkbox" name="saturn" value="True" checked="checked"/> Saturn<br />
+    <input disabled="yes" type="checkbox" name="uranus" value="True" checked="checked"/> Uranus<br />
+    <input disabled="yes" type="checkbox" name="neptune" value="True" checked="checked"/> Neptune<br />
     </fieldset><fieldset><legend>Stars &amp; Nebulae</legend>
     <small>Multiple selections use the control key.  For your convenience: <a href="http://en.wikipedia.org/wiki/List_of_Messier_objects" target=\"_blank\">list of Messiers</a></small><br /> 
     <select name="star" multiple="multiple" > """ % form

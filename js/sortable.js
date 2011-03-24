@@ -90,6 +90,7 @@ function ts_resortTable(lnk) {
 	if (itm.match(/^\d\d:\d\d$/)) sortfn = ts_sort_time;		// NJC 09/15/2010 added this for my ephem table
 	if (itm.match(/^[£$€]/)) sortfn = ts_sort_currency;
 	if (itm.match(/^-?[\d\.]+$/)) sortfn = ts_sort_numeric;		// NJC 03/04/2011 added -? to regex for negative numbers
+	if (itm.match(/^M\d+$/)) sortfn = ts_sort_messier;		// NJC 03/23/2011 added this for messiers (to ignore leading 'M')
 	SORT_COLUMN_INDEX = column;
 	var firstRow = new Array();
 	var newRows = new Array();
@@ -189,8 +190,8 @@ function ts_sort_time(a,b) {
 	aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]);
 	bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]);
 	// NJC 09/15/2010 create special case for -1
-	dt1 = aa.substr(0,2) + aa.substr(3,2)
-	dt2 = bb.substr(0,2) + bb.substr(3,2)
+	dt1 = aa.substr(0,2) + aa.substr(3,2);
+	dt2 = bb.substr(0,2) + bb.substr(3,2);
 	if (dt1==dt2) {
 	    return 0;
 	}
@@ -241,6 +242,17 @@ function ts_sort_default(a,b) {
 		return -1;
 	}
 	return 1;
+}
+
+//  NJC 03/23/2011 more or less copied from ts_sort_time with my changes to ignore first column ('M')
+function ts_sort_messier(a,b) {
+	aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]);
+	bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]);
+	dt1 = '00' + aa.substr(1);
+	dt2 = '00' + bb.substr(1);
+	//dt1 = dt1 * 1;    // NJC 03/24/2011  not needed, since the subtraction in the return statement forces the strings to numbers.
+	//dt2 = dt2 * 1;
+	return dt1-dt2;
 }
 
 function addEvent(elm, evType, fn, useCapture)

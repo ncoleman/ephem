@@ -853,11 +853,11 @@ def renderHTMLIntro():
         <ul>
             <li>These affect the angles only slightly except for refraction when the object is very close to the horizon.  You probably don't need to bother most of the time.</li>
             <ul>
-                <li>You do need to bother if you want really accurate rise and set times, since refraction does affect those. The difference can be a minute or two.</li>
+                <li>You do need to bother if you want really accurate rise and set times, since refraction does affect those. The difference between using the default pressure and actual pressure can be a minute or two.</li>
+                <li>You can disable refraction completely by setting pressure to 0.</li>
             </ul>
             <li>Cities come with a default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
             <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspapers report.</li>
-            <li>You can disable refraction by setting pressure to 0.</li>
         </ul>
         <li>Magnitude: magnitude is a measure of brightness (or dimness, if you prefer); the dimmer the object the higher the number.  The scale ranges from negative (very bright objects) to positive (dimmer objects). Most visible stars are between roughly 1&mdash;6. </li>
         <ul>
@@ -887,10 +887,10 @@ def renderHTMLIntro():
     <h3>Restrictions</h3>
     <ul>
     <li><em>Date restrictions</em> are 1 A.D. &mdash; 9999 A.D., due to Python's date module which cannot go further back than 1 A.D.  The astronomical library I use can go further back, but I haven't implemented that feature because it would be a lot of work for the very few times it would be used.  Email me if this is an issue for you and I might change my mind.</li>
-    <li>For years earlier than 1900, the local time and UTC time output is not formatted nicely due to a restriction in the <i>strftime</i> function in Python (restriction removed since 3.3).  This may result in odd displays such as "12:32:59.9999" instead of "12:33:00".</li>
+    <li>For years earlier than 1900, the local time and UTC time output is not formatted nicely due to a restriction in the <i>strftime</i> function in Python.  This may result in odd displays such as "12:32:59.9999" instead of "12:33:00".</li>
     <li>I use cookies to store your location and preferences, and javascript to automatically blank some input when you select a conflicting choice, like blanking latitude and longitude when you select a city. If you delete cookies and disable javascript, you will disable those useful features and might get inaccurate results.
     <ul>
-        <li>You can view the javascript in the page's source if you wan't to check it out.</li>
+        <li>You can view the javascript in the page's source if you want to check it out.</li>
     </ul>
     </li>
     </ul>

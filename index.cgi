@@ -686,12 +686,16 @@ def renderForm():
     print """
     </select> <small>Overrides any latitude and longitude below</small></fieldset><fieldset><legend>or input location manually</legend>
     <small>West, South negative</small><br />
-    Latitude: <input type="text" name="lat" value="%(lat)s" size="10" onfocus="uncheckCity()" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />
-    Longitude: <input type="text" name="long" value="%(long)s" size="10" onfocus="uncheckCity()" /><br />
+    <table>
+    <tr><td>Latitude: </td><td><input type="text" name="lat" value="%(lat)s" size="10" onfocus="uncheckCity()" /></td><td><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small></td></tr>
+    <tr><td>Longitude: </td><td><input type="text" name="long" value="%(long)s" size="10" onfocus="uncheckCity()" /></td><td></td></tr>
+    </table>
     <hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />
-    Temperature: <input type="text" name="temp" value="%(temp)s" size="5" />°C  <small>default: 15°C</small><br />
-    Elevation: <input type="text" name="elev" value="%(elev)s" size="5" />metres <small>default: 0.0m</small><br />
-    Barometric Pressure: <input type="text" name="pressure" value="%(pressure)s" size="5" />mBar <small>default: 1010mB</small><br />
+    <table>
+    <tr><td>Temperature:</td><td><input type="text" name="temp" value="%(temp)s" size="5" /><td>°C</td></td><td><small>default: 15°C</small></td><tr>
+    <tr><td>Elevation:</td><td><input type="text" name="elev" value="%(elev)s" size="5" /><td>metres</td></td><td><small>default: 0.0m</small></td><tr>
+    <tr><td>Barometric Pressure:</td><td><input type="text" name="pressure" value="%(pressure)s" size="5" /><td>mBar</td></td><td><small>default: 1010mB</small></td><tr>
+    </table>
     </fieldset></fieldset>
     <fieldset><legend><b>Bodies</b></legend>
     <fieldset><legend>Solar System</legend>

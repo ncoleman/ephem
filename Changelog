@@ -26,6 +26,12 @@ calcs.
 parameter values to "" when dropdown list is clicked.
 *   03/10/2011  fixed long-standing bug with star/messier alt and az sometimes
 incorrect
+*   03/25/2011 fixed long-standing hidden bug with regex validation of lat/long
+*   03/25/2011 refactored form generating code where the dropdown lists are
+created by concatenating strings in a loop.  Changed the concatenation from a
+"".join(etc) to list.append within the loop, then doing a "".join finally
+outside the loop.  Profiling showed this is twice as quick (for python 2.6 on
+laptop, should be the same for 2.5 on the server).
 
 
 TODO

@@ -545,9 +545,10 @@ def renderForm():
     checked = 'checked="checked"'                       # used often enough to treat it as a quasi constant
     selected = 'selected="selected"'
     hours = ''
+    str_ = str                                          # to avoid global lookup within inner loops later
     for h in range(0,24):
-        h_ = str(h)
-        if h_ == str(params['hour']):
+        h_ = str_(h)
+        if h_ == str_(params['hour']):
             form['hourchecked'] = selected
         else:
             form['hourchecked'] = ''
@@ -556,8 +557,8 @@ def renderForm():
     form['hours'] = hours
     minutes = ''
     for m in range(0,60):
-        m_ = str(m)
-        if m_ == str(params['minute']):
+        m_ = str_(m)
+        if m_ == str_(params['minute']):
             form['minutechecked'] = selected
         else:
             form['minutechecked'] = ''
@@ -566,8 +567,8 @@ def renderForm():
     form['minutes'] = minutes
     days = ''
     for d in range(1,32):
-        d_ = str(d)
-        if d_ == str(params['day']):
+        d_ = str_(d)
+        if d_ == str_(params['day']):
             form['daychecked'] = selected
         else:
             form['daychecked'] = ''
@@ -576,8 +577,8 @@ def renderForm():
 
     months = ''
     for m in range(1,13):
-        m_ = str(m)
-        if m_ == str(params['month']):
+        m_ = str_(m)
+        if m_ == str_(params['month']):
             form['monthchecked'] = selected
         else:
             form['monthchecked'] = ''
@@ -599,21 +600,25 @@ def renderForm():
         form['localchecked'] = checked
         zones = '<option value ="UTC">UTC</option>'
 
+    list_ = []
+    append = list_.append
     for z in tz_list:
         if params['tzname'] and z == params['tzname']:
             form['tzchecked'] = 'selected="selected"'
         else:
             form['tzchecked'] = ''
-        zones = "".join((zones, '<option value="%s" %s>%s</option>' % (z, form['tzchecked'], z)))
+        append('<option value="%s" %s>%s</option>' % (z, form['tzchecked'], z))
+    zones = "".join(list_)
 
-    cities = '<option value=""></option>'
+    list_ = ['<option value=""></option>']
+    append = list_.append
     for c in city_list:
         if params['city'] and c == params['city']:
             form['cityselect'] = 'selected="selected"'
         else:
             form['cityselect'] = ''
-        #cities += '<option value="%s" %s>%s</option>' % (c, form['cityselect'], c)
-        cities = "".join((cities,'<option value="%s" %s>%s</option>' % (c, form['cityselect'], c)))
+        append('<option value="%s" %s>%s</option>' % (c, form['cityselect'], c))
+    cities = "".join(list_)
 
     form['lat'] = params['lat'] or ''
     form['long'] = params['long'] or ''
@@ -624,7 +629,8 @@ def renderForm():
     else:
         form['pressure'] =  ''
 
-    stars = '<option value=""></option>'
+    list_ = ['<option value=""></option>']
+    append = list_.append
     params['star'] += ''                  # make sure star has at least one member
     for s in star_list:
         for ss in params['star']:
@@ -633,9 +639,11 @@ def renderForm():
                 break
         else:
             form['starselect'] = ''
-        stars = "".join((stars, '<option value="%s" %s>%s</option>' % (s, form['starselect'], s)))
+        append('<option value="%s" %s>%s</option>' % (s, form['starselect'], s))
+    stars = "".join(list_)
 
-    messiers = '<option value=""></option>'
+    list_ = ['<option value=""></option>']
+    append = list_.append
     params['messier'] += ''
     for m in messier_list:
         for mm in params['messier']:
@@ -644,7 +652,8 @@ def renderForm():
                 break
         else:
             form['messierselect'] = ''
-        messiers = "".join((messiers, '<option value="%s" %s>%s</option>' % (m, form['messierselect'], m)))
+        append('<option value="%s" %s>%s</option>' % (m, form['messierselect'], m))
+    messiers = "".join(list_)
 
     if params['altaz']:
         form['altazchecked'] = (checked,'')

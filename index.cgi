@@ -1,6 +1,8 @@
 #!/usr/bin/python -Wignore::DeprecationWarning
 #coding=utf-8
 #!/usr/bin/env python -Wignore::DeprecationWarning
+#!/usr/bin/python -Wignore::DeprecationWarning
+#!/home/nickcoleman/local/bin/python -Wignore::DeprecationWarning
 
 from __future__ import with_statement
 import cgi, cgitb
@@ -64,6 +66,7 @@ params = {
 }
 
 booleans = ('processed', 'now', 'utc', 'save', 'altaz', 'above_horiz')
+debug = []                      # a handy set for anything, useful to store values to print out later
 
 def main():
     cgitb.enable()
@@ -114,7 +117,7 @@ def main():
                 value = cookie[key].value
                 if value and value is not "None" and value is not "False":
                     params[key] = cookie[key].value
-        #params['processed'] = True
+
     # set defaults if not already set
     else:
         params['year'], params['month'], params['day'], params['hour'], params['minute']  = datetime.utcnow().timetuple()[:5]
@@ -211,17 +214,17 @@ def main():
             next_autumnal = getLocalDateTime(next_autumnal)
             next_summer = getLocalDateTime(next_summer)
             next_winter = getLocalDateTime(next_winter)
-        print """<table cellpadding=\"10\" cellspacing=\"5\" >
+        print """<table cellpadding=\"5\" cellspacing=\"5\" class=\"seasons\" >
             <tr><tr><th class=\"seasons\">Seasons</th></tr>
             <tr><td>Previous</td>
-            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
+            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d</td><td>%d-%02d-%02d %02d:%02d</td></tr>
             <tr><td>Next</td>
-            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d:%02d</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>
+            <td>Equinoxes:</td><td>%d-%02d-%02d %02d:%02d</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>Solstices:</td><td>%d-%02d-%02d %02d:%02d</td><td>%d-%02d-%02d %02d:%02d</td></tr></table>
             """ % (
-                    previous_vernal[:6] + previous_autumnal[:6] + previous_summer[:6] + previous_winter[:6] +
-                    next_vernal[:6] + next_autumnal[:6] + next_summer[:6] + next_winter[:6])
+                    previous_vernal[:5] + previous_autumnal[:5] + previous_summer[:5] + previous_winter[:5] +
+                    next_vernal[:5] + next_autumnal[:5] + next_summer[:5] + next_winter[:5])
         next_full_moon = ephem.next_full_moon(home.date).tuple()
         next_new_moon = ephem.next_new_moon(home.date).tuple()
         next_crescent_moon = getCrescentMoon(home, next_new_moon).tuple()
@@ -239,24 +242,24 @@ def main():
                 prev_new_moon[:6]: 'New', prev_full_moon[:6]: 'Full', prev_crescent_moon[:6]: 'Crescent' }
         moon_keys = moons.keys()            # keys are ephem dates in tuple format when printed
         moon_keys.sort()                    # NB sort works correctly on tuples !
-        print """<table cellpadding=\"10\" cellspacing=\"5\">
+        print """<table cellpadding=\"5\" cellspacing=\"5\" class=\"seasons\" >
             <tr><th class=\"seasons\">Moon</th></tr>
-            <tr><td>Previous</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td>Next</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr>
-            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d:%02d</td></tr></table>""" % (
-            moons[moon_keys[0]], moon_keys[0][0], moon_keys[0][1], moon_keys[0][2], moon_keys[0][3], moon_keys[0][4], moon_keys[0][5], 
-            moons[moon_keys[1]], moon_keys[1][0], moon_keys[1][1], moon_keys[1][2], moon_keys[1][3], moon_keys[1][4], moon_keys[1][5], 
-            moons[moon_keys[2]], moon_keys[2][0], moon_keys[2][1], moon_keys[2][2], moon_keys[2][3], moon_keys[2][4], moon_keys[2][5],
-            moons[moon_keys[3]], moon_keys[3][0], moon_keys[3][1], moon_keys[3][2], moon_keys[3][3], moon_keys[3][4], moon_keys[3][5], 
-            moons[moon_keys[4]], moon_keys[4][0], moon_keys[4][1], moon_keys[4][2], moon_keys[4][3], moon_keys[4][4], moon_keys[4][5],
-            moons[moon_keys[5]], moon_keys[5][0], moon_keys[5][1], moon_keys[5][2], moon_keys[5][3], moon_keys[5][4], moon_keys[5][5])
+            <tr><td>Previous</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td>Next</td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr>
+            <tr><td></td><td>%s:</td><td>%d-%02d-%02d %02d:%02d</td></tr></table>""" % (
+            moons[moon_keys[0]], moon_keys[0][0], moon_keys[0][1], moon_keys[0][2], moon_keys[0][3], moon_keys[0][4], 
+            moons[moon_keys[1]], moon_keys[1][0], moon_keys[1][1], moon_keys[1][2], moon_keys[1][3], moon_keys[1][4], 
+            moons[moon_keys[2]], moon_keys[2][0], moon_keys[2][1], moon_keys[2][2], moon_keys[2][3], moon_keys[2][4],
+            moons[moon_keys[3]], moon_keys[3][0], moon_keys[3][1], moon_keys[3][2], moon_keys[3][3], moon_keys[3][4], 
+            moons[moon_keys[4]], moon_keys[4][0], moon_keys[4][1], moon_keys[4][2], moon_keys[4][3], moon_keys[4][4],
+            moons[moon_keys[5]], moon_keys[5][0], moon_keys[5][1], moon_keys[5][2], moon_keys[5][3], moon_keys[5][4])
         altaz = params['altaz'] and ('Altitude', 'Azimuth') or ('RA', 'Dec')
         print '<p><small>Times are %s. Click column heading to sort.</small></p>' % (params['utc'] and 'UTC' or 'local')
         print '<table class="sortable" id="results_bodies" ><tr><th>Body</th><th>%s</th><th>%s</th><th>Dir</th><th>Const</th><th>Mag</th><th>Phase</th><th>Rise</th><th>Set</th><th>TransAlt</th></tr>' % (altaz)
-        print_fmt = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+        print_fmt = '<tr><td class=\"tdleft\">%s</td><td>%s</td><td>%3s</td><td>%3s</td><td class=\"tdleft\">&nbsp; %3s</td><td>%.0f</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
         # For all three sections: body, star and messier, the second compute is needed because home.next_(setting|rising) sets the body's
         # compute date to that time, meaning any subsequesnt alt/az display is incorrect.  Recompute to calculate correct settings.
         for body in ('sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune'):
@@ -298,7 +301,7 @@ def main():
             s.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (s.name, roundAngle(s.az), roundAngle(s.alt), s.mag)
             altazradec = params['altaz'] and (s.alt, s.az) or (s.ra, s.dec)
-            print_fmt = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+            print_fmt = '<tr><td class=\"tdleft\">%s</td><td>%s</td><td>%3s</td><td>%3s</td><td class=\"tdleft\">&nbsp; %3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
             print print_fmt % (s.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(s.az), ephem.constellation(s)[1][:6], s.mag, risetime, settime, roundAngle(s.transit_alt))
         print '</table>'
 
@@ -326,7 +329,7 @@ def main():
             m.compute(home)
             #print '<p>%s, az %s, alt %s, mag %2.0f</p>' % (m.name, roundAngle(m.az), roundAngle(m.alt), m.mag)
             altazradec = params['altaz'] and (m.alt, m.az) or (m.ra, m.dec)
-            print_fmt = '<tr><td>%s</td><td>%s</td><td>%3s</td><td>%3s</td><td>%3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+            print_fmt = '<tr><td class=\"tdleft\">%s</td><td>%s</td><td>%3s</td><td>%3s</td><td class=\"tdleft\">&nbsp; %3s</td><td>%.0f</td><td>%s</td><td>%s</td><td>%s</td></tr>'
             print print_fmt % (m.name, roundAngle(altazradec[0]), roundAngle(altazradec[1]), azDirection(m.az), ephem.constellation(m)[1][:6], float(m.mag), risetime, settime, roundAngle(m.transit_alt))
         print '</table>'
             
@@ -357,7 +360,7 @@ def doEphemStuff():
         home.temp = params['temp']
     if params['elev']:
         home.elev = params['elev']
-    if params['pressure']:
+    if params['pressure'] is not None:                      # to handle special case where pressure is 0.0
         home.pressure = params['pressure']
     home.date = ephem.Date(params['utc_date'])
     params['sun'] = ephem.Sun(home)
@@ -414,8 +417,8 @@ def renderHTMLFooter():
                 document.getElementsByName('lat')[0].value = ""
                 document.getElementsByName('long')[0].value = ""
                 document.getElementsByName('elev')[0].value = ""
-                document.getElementsByName('temp')[0].value = ""
-                document.getElementsByName('pressure')[0].value = ""
+                //document.getElementsByName('temp')[0].value = ""
+                //document.getElementsByName('pressure')[0].value = ""
             }
 
             function uncheckCity(){
@@ -434,12 +437,6 @@ def renderHTMLFooter():
         </noscript> 
         </body></html>"""
 
-
-def getCookies():
-    cookie = Cookie.SimpleCookie()
-    cookie.load(os.environ['HTTP_COOKIE'])
-    for key in cookie.keys():
-        params['key'] = cookie[key].value
 
 def setCookies(clear=False):
     cookie = Cookie.SimpleCookie()
@@ -465,10 +462,10 @@ def validateParams():
         valid = True
         validateMsg = ''
         # 00:00:00 or 00.0000
-        if params['lat'] and not re.match(r'^[+-]?([0-9]{1,3}(:[0-9]{1,3})+)|([0-9]*.[0-9]*)$',params['lat']):
+        if params['lat'] and not re.match(r'^[+-]?([0-9]{1,3}((:[0-5][0-9])+)|(\.[0-9]*))$',params['lat']):
             validateMsg += r'<p class="error">Latitude invalid.</p>'
             valid = False
-        if params['long'] and not re.match(r'^[-+]?([0-9]{1,3}(:[0-9]{1,3})+)|([0-9]*.[0-9]*)$',params['long']):
+        if params['long'] and not re.match(r'^[+-]?([0-9]{1,3}((:[0-5][0-9])+)|(\.[0-9]*))$',params['long']):
             validateMsg += r'<p class="error">Longitute invalid.</p>'
             valid = False
         # -/+ any 3 digit number plus floating part
@@ -480,7 +477,7 @@ def validateParams():
             validateMsg += r'<p class="error">Elevation %s is invalid</p>' % params['elev']
             #params['elev'] = 0.0
             valid = False
-        if params['pressure'] and not re.match(r'^[0-9]{3,4}(\.[0-9]*)?$', str(params['pressure'])):
+        if params['pressure'] and not re.match(r'^0|([0-9]{3,4}(\.[0-9]*)?)$', str(params['pressure'])):
             validateMsg += r'<p class="error">Pressure %s is invalid</p>' % params['pressure']
             valid = False
         if params['year']:
@@ -548,9 +545,10 @@ def renderForm():
     checked = 'checked="checked"'                       # used often enough to treat it as a quasi constant
     selected = 'selected="selected"'
     hours = ''
+    str_ = str                                          # to avoid global lookup within inner loops later
     for h in range(0,24):
-        h_ = str(h)
-        if h_ == str(params['hour']):
+        h_ = str_(h)
+        if h_ == str_(params['hour']):
             form['hourchecked'] = selected
         else:
             form['hourchecked'] = ''
@@ -559,8 +557,8 @@ def renderForm():
     form['hours'] = hours
     minutes = ''
     for m in range(0,60):
-        m_ = str(m)
-        if m_ == str(params['minute']):
+        m_ = str_(m)
+        if m_ == str_(params['minute']):
             form['minutechecked'] = selected
         else:
             form['minutechecked'] = ''
@@ -569,8 +567,8 @@ def renderForm():
     form['minutes'] = minutes
     days = ''
     for d in range(1,32):
-        d_ = str(d)
-        if d_ == str(params['day']):
+        d_ = str_(d)
+        if d_ == str_(params['day']):
             form['daychecked'] = selected
         else:
             form['daychecked'] = ''
@@ -579,8 +577,8 @@ def renderForm():
 
     months = ''
     for m in range(1,13):
-        m_ = str(m)
-        if m_ == str(params['month']):
+        m_ = str_(m)
+        if m_ == str_(params['month']):
             form['monthchecked'] = selected
         else:
             form['monthchecked'] = ''
@@ -602,29 +600,37 @@ def renderForm():
         form['localchecked'] = checked
         zones = '<option value ="UTC">UTC</option>'
 
+    list_ = []
+    append = list_.append
     for z in tz_list:
         if params['tzname'] and z == params['tzname']:
             form['tzchecked'] = 'selected="selected"'
         else:
             form['tzchecked'] = ''
-        zones = "".join((zones, '<option value="%s" %s>%s</option>' % (z, form['tzchecked'], z)))
+        append('<option value="%s" %s>%s</option>' % (z, form['tzchecked'], z))
+    zones = "".join(list_)
 
-    cities = '<option value=""></option>'
+    list_ = ['<option value=""></option>']
+    append = list_.append
     for c in city_list:
         if params['city'] and c == params['city']:
             form['cityselect'] = 'selected="selected"'
         else:
             form['cityselect'] = ''
-        #cities += '<option value="%s" %s>%s</option>' % (c, form['cityselect'], c)
-        cities = "".join((cities,'<option value="%s" %s>%s</option>' % (c, form['cityselect'], c)))
+        append('<option value="%s" %s>%s</option>' % (c, form['cityselect'], c))
+    cities = "".join(list_)
 
     form['lat'] = params['lat'] or ''
     form['long'] = params['long'] or ''
     form['temp'] =  params['temp'] or ''
     form['elev'] = params['elev'] or ''
-    form['pressure'] =  params['pressure'] or ''
+    if params['pressure'] is not None:          # special case to allow for pressure = 0.0
+        form['pressure'] =  params['pressure']
+    else:
+        form['pressure'] =  ''
 
-    stars = '<option value=""></option>'
+    list_ = ['<option value=""></option>']
+    append = list_.append
     params['star'] += ''                  # make sure star has at least one member
     for s in star_list:
         for ss in params['star']:
@@ -633,9 +639,11 @@ def renderForm():
                 break
         else:
             form['starselect'] = ''
-        stars = "".join((stars, '<option value="%s" %s>%s</option>' % (s, form['starselect'], s)))
+        append('<option value="%s" %s>%s</option>' % (s, form['starselect'], s))
+    stars = "".join(list_)
 
-    messiers = '<option value=""></option>'
+    list_ = ['<option value=""></option>']
+    append = list_.append
     params['messier'] += ''
     for m in messier_list:
         for mm in params['messier']:
@@ -644,7 +652,8 @@ def renderForm():
                 break
         else:
             form['messierselect'] = ''
-        messiers = "".join((messiers, '<option value="%s" %s>%s</option>' % (m, form['messierselect'], m)))
+        append('<option value="%s" %s>%s</option>' % (m, form['messierselect'], m))
+    messiers = "".join(list_)
 
     if params['altaz']:
         form['altazchecked'] = (checked,'')
@@ -686,24 +695,28 @@ def renderForm():
     print """
     </select> <small>Overrides any latitude and longitude below</small></fieldset><fieldset><legend>or input location manually</legend>
     <small>West, South negative</small><br />
-    Latitude: <input type="text" name="lat" value="%(lat)s" size="10" onfocus="uncheckCity()" /><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small><br />
-    Longitude: <input type="text" name="long" value="%(long)s" size="10" onfocus="uncheckCity()" /><br />
+    <table>
+    <tr><td>Latitude: </td><td><input type="text" name="lat" value="%(lat)s" size="10" onfocus="uncheckCity()" /></td><td><small>DD:MM(:SS) or DD.dddd</small></td></tr>
+    <tr><td>Longitude: </td><td><input type="text" name="long" value="%(long)s" size="10" onfocus="uncheckCity()" /></td><td></td></tr>
+    </table>
     <hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />
-    Temperature: <input type="text" name="temp" value="%(temp)s" size="5" />°C  <small>default: 15°C</small><br />
-    Elevation: <input type="text" name="elev" value="%(elev)s" size="5" />metres <small>default: 0.0m</small><br />
-    Barometric Pressure: <input type="text" name="pressure" value="%(pressure)s" size="5" />mBar <small>default: 1010mB</small><br />
+    <table>
+    <tr><td>Temperature:</td><td><input type="text" name="temp" value="%(temp)s" size="5" /><td class=\"tdleft\">°C</td></td><td class=\"tdleft\"><small>default: 15°C</small></td><tr>
+    <tr><td>Elevation:</td><td><input type="text" name="elev" value="%(elev)s" size="5" /><td class=\"tdleft\">metres</td></td><td class=\"tdleft\"><small>default: 0.0m</small></td><tr>
+    <tr><td>Barometric Pressure:</td><td><input type="text" name="pressure" value="%(pressure)s" size="5" /><td class=\"tdleft\">mBar</td></td class=\"tdleft\"><td><small>default: 1010mB</small></td><tr>
+    </table>
     </fieldset></fieldset>
     <fieldset><legend><b>Bodies</b></legend>
     <fieldset><legend>Solar System</legend>
-    <input type="checkbox" name="sun" value="True" checked="checked" /> Sun<br />
-    <input type="checkbox" name="moon" value="True" checked="checked" /> Moon<br />
-    <input type="checkbox" name="mercury" value="True" checked="checked"/> Mercury<br />
-    <input type="checkbox" name="venus" value="True" checked="checked"/> Venus<br />
-    <input type="checkbox" name="mars" value="True" checked="checked"/> Mars<br />
-    <input type="checkbox" name="jupiter" value="True" checked="checked"/> Jupiter<br />
-    <input type="checkbox" name="saturn" value="True" checked="checked"/> Saturn<br />
-    <input type="checkbox" name="uranus" value="True" checked="checked"/> Uranus<br />
-    <input type="checkbox" name="neptune" value="True" checked="checked"/> Neptune<br />
+    <input disabled="yes" type="checkbox" name="sun" value="True" checked="checked" /> Sun<br />
+    <input disabled="yes" type="checkbox" name="moon" value="True" checked="checked" /> Moon<br />
+    <input disabled="yes" type="checkbox" name="mercury" value="True" checked="checked"/> Mercury<br />
+    <input disabled="yes" type="checkbox" name="venus" value="True" checked="checked"/> Venus<br />
+    <input disabled="yes" type="checkbox" name="mars" value="True" checked="checked"/> Mars<br />
+    <input disabled="yes" type="checkbox" name="jupiter" value="True" checked="checked"/> Jupiter<br />
+    <input disabled="yes" type="checkbox" name="saturn" value="True" checked="checked"/> Saturn<br />
+    <input disabled="yes" type="checkbox" name="uranus" value="True" checked="checked"/> Uranus<br />
+    <input disabled="yes" type="checkbox" name="neptune" value="True" checked="checked"/> Neptune<br />
     </fieldset><fieldset><legend>Stars &amp; Nebulae</legend>
     <small>Multiple selections use the control key.  For your convenience: <a href="http://en.wikipedia.org/wiki/List_of_Messier_objects" target=\"_blank\">list of Messiers</a></small><br /> 
     <select name="star" multiple="multiple" > """ % form
@@ -713,8 +726,8 @@ def renderForm():
     print """
     </select></fieldset></fieldset>
     <fieldset><legend>Results</legend>
-    Display results in Alt/Az<input type="radio" name="altaz" value="True" %s />
-     RA/Dec<input type="radio" name="altaz" value="False" %s />
+    Display results in <br />&nbsp;&nbsp;Alt/Az &nbsp;<input type="radio" name="altaz" value="True" %s />
+     <br />&nbsp;&nbsp;RA/Dec<input type="radio" name="altaz" value="False" %s />
      <br />Only objects above horizon?<input type="checkbox" name="above_horiz" value="True" %s />
      <br />Only brighter than<input type="text" value="%s" name="minmag" size="3" />magnitude (lower is brighter)
     </fieldset>
@@ -838,31 +851,38 @@ def renderHTMLIntro():
     </ul>
     <h3>Usage</h3>
     <ul> 
-    <li>Select the time and date, or choose Now.  Initially, it is set to current time in UTC.</li>
-    <li>Select UTC or local time and your timezone.</li>
-    <li>Select your location:</li>
+        <li>Select the time and date, or choose Now.  Initially, it is set to current time in UTC.</li>
+        <li>Select UTC or local time and your timezone.</li>
+        <li>Select your location:</li>
         <ul>
             <li>a city from the drop-down list, or</li>
             <li>enter the latitude and longitude.</li>
         </ul>
-    <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.</li>
-    <ul>
-        <li>These affect the angles only slightly.  You probably don't need to bother.</li>
-        <li>Cities come with a default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
-        <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspapers report.</li></ul></li>
+        <li>Enter the temperature, elevation, and barometric pressure of your location, or leave them blank to use the defaults.</li>
+        <ul>
+            <li>These affect the angles only slightly except for refraction when the object is very close to the horizon.  You probably don't need to bother most of the time.</li>
+            <ul>
+                <li>You do need to bother if you want really accurate rise and set times, since refraction does affect those. The difference between using the default pressure and actual pressure can be a minute or two.</li>
+                <li>You can disable refraction completely by setting pressure to 0.</li>
+            </ul>
+            <li>Cities come with a default elevation (which is displayed in the output).  You don't need to set elevation if you chose a city.</li>
+            <li>Barometric pressure is the sea level equivalent, i.e. the one that the TV and newspapers report.</li>
+        </ul>
         <li>Magnitude: magnitude is a measure of brightness (or dimness, if you prefer); the dimmer the object the higher the number.  The scale ranges from negative (very bright objects) to positive (dimmer objects). Most visible stars are between roughly 1&mdash;6. </li>
         <ul>
             <li>Typically, with the naked eye you can see up to about magnitude 3 objects in an urban area, and up to about 6 in a rural area.  Binoculars increase that quite a bit, up to about 9 in a rural area.</li>
         </ul>
-    <li>Select which of the planets you wish to see (temporarily disabled; you get the lot, free!).</li>
-    <li>Select none or more stars you wish to see (use the control key to select multiple stars; ctrl-a to select all of them).</li>
-    <li>Do the same with the Messier objects.</li>
-    <li>Choose whether to display the results in Altitude/Azimuth format, or in <a href="/axs/ax.pl?http://en.wikipedia.org/wiki/Declination">Right Angle/Declination</a> format.</li>
-    <li>Choose to display only those objects that are above the horizon.</li>
-    <li>Choose to display only those objects brighter than a certain value (the lower the value the more objects are filtered out; higher values will include dimmer objects).</li>
-        <ul><li>Example: display only those objects brighter than mag 4 since you live in a city and cannot see dimmer objects anyway.  Enter 4 in the box.  The results will display everthing from magnitude -99 to 4 and will exclude everything from 4 to 99.</li></ul>
-    <li>Choose to save settings, which stores your date, timezone and location information for later so you won't have to re-enter them again.  It uses cookies so it won't work if you have cookies disabled for this site.</li>
-    <li>Clear settings removes any settings you have previously stored, e.g. you want to remove a saved city.  (It may not take effect until a browser restart.)</li>
+        <li>Select which of the planets you wish to see (temporarily disabled; you get the lot, free!).</li>
+        <li>Select none or more stars you wish to see (use the control key to select multiple stars; ctrl-a to select all of them).</li>
+        <li>Do the same with the Messier objects.</li>
+        <li>Choose whether to display the results in Altitude/Azimuth format, or in <a href="/axs/ax.pl?http://en.wikipedia.org/wiki/Declination">Right Angle/Declination</a> format.</li>
+        <li>Choose to display only those objects that are above the horizon.</li>
+        <li>Choose to display only those objects brighter than a certain value (the lower the value the more objects are filtered out; higher values will include dimmer objects).</li>
+        <ul
+            ><li>Example: display only those objects brighter than mag 4 since you live in a city and cannot see dimmer objects anyway.  Enter 4 in the box.  The results will display everthing from magnitude -99 to 4 and will exclude everything from 4 to 99.</li>
+        </ul>
+        <li>Choose to save settings, which stores your date, timezone and location information for later so you won't have to re-enter them again.  It uses cookies so it won't work if you have cookies disabled for this site.</li>
+        <li>Clear settings removes any settings you have previously stored, e.g. you want to remove a saved city.  (It may not take effect until a browser restart.)</li>
     </ul>
     <h3>Output</h3>
     <ul>
@@ -876,7 +896,12 @@ def renderHTMLIntro():
     <h3>Restrictions</h3>
     <ul>
     <li><em>Date restrictions</em> are 1 A.D. &mdash; 9999 A.D., due to Python's date module which cannot go further back than 1 A.D.  The astronomical library I use can go further back, but I haven't implemented that feature because it would be a lot of work for the very few times it would be used.  Email me if this is an issue for you and I might change my mind.</li>
-    <li>For years earlier than 1900, the local time and UTC time output is not formatted nicely due to a restriction in the <i>strftime</i> function in Python (restriction removed since 3.3).  This may result in odd displays such as "12:32:59.9999" instead of "12:33:00".</li>
+    <li>For years earlier than 1900, the local time and UTC time output is not formatted nicely due to a restriction in the <i>strftime</i> function in Python.  This may result in odd displays such as "12:32:59.9999" instead of "12:33:00".</li>
+    <li>I use cookies to store your location and preferences, and javascript to automatically blank some input when you select a conflicting choice, like blanking latitude and longitude when you select a city. If you delete cookies and disable javascript, you will disable those useful features and might get inaccurate results.
+    <ul>
+        <li>You can view the javascript in the page's source if you want to check it out.</li>
+    </ul>
+    </li>
     </ul>
     <h3>About</h3>
     <p>This is version 1.1, usable but not tidy.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>

@@ -462,10 +462,10 @@ def validateParams():
         valid = True
         validateMsg = ''
         # 00:00:00 or 00.0000
-        if params['lat'] and not re.match(r'^[+-]?([0-9]{1,3}(:[0-9]{1,3})+)|([0-9]*.[0-9]*)$',params['lat']):
+        if params['lat'] and not re.match(r'^[+-]?([0-9]{1,3}((:[0-5][0-9])+)|(\.[0-9]*))$',params['lat']):
             validateMsg += r'<p class="error">Latitude invalid.</p>'
             valid = False
-        if params['long'] and not re.match(r'^[-+]?([0-9]{1,3}(:[0-9]{1,3})+)|([0-9]*.[0-9]*)$',params['long']):
+        if params['long'] and not re.match(r'^[+-]?([0-9]{1,3}((:[0-5][0-9])+)|(\.[0-9]*))$',params['long']):
             validateMsg += r'<p class="error">Longitute invalid.</p>'
             valid = False
         # -/+ any 3 digit number plus floating part
@@ -687,7 +687,7 @@ def renderForm():
     </select> <small>Overrides any latitude and longitude below</small></fieldset><fieldset><legend>or input location manually</legend>
     <small>West, South negative</small><br />
     <table>
-    <tr><td>Latitude: </td><td><input type="text" name="lat" value="%(lat)s" size="10" onfocus="uncheckCity()" /></td><td><small>DD:MM:SS or DD.dddd or DD:MM.mmm</small></td></tr>
+    <tr><td>Latitude: </td><td><input type="text" name="lat" value="%(lat)s" size="10" onfocus="uncheckCity()" /></td><td><small>DD:MM(:SS) or DD.dddd</small></td></tr>
     <tr><td>Longitude: </td><td><input type="text" name="long" value="%(long)s" size="10" onfocus="uncheckCity()" /></td><td></td></tr>
     </table>
     <hr /><small>The entries below will also override the city settings (if you selected a city above).</small><br />

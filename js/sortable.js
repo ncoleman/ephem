@@ -250,8 +250,8 @@ function ts_sort_messier(a,b) {
 	bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]);
 	dt1 = '00' + aa.substr(1);
 	dt2 = '00' + bb.substr(1);
-	//dt1 = dt1 * 1;    // NJC 03/24/2011  not needed, since the subtraction in the return statement forces the strings to numbers.
-	//dt2 = dt2 * 1;
+	dt1 = dt1 * 1;    // NJC 03/24/2011  (WAS not needed) IS needed for Firefox at least, to force string to int.
+	dt2 = dt2 * 1;
 	return dt1-dt2;
 }
 

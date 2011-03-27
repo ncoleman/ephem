@@ -720,9 +720,9 @@ def renderForm():
     <input disabled="yes" type="checkbox" name="neptune" value="True" checked="checked"/> Neptune<br />
     </fieldset><fieldset><legend>Stars &amp; Nebulae</legend>
     <small>Multiple selections use the control key.  For your convenience: <a href="http://en.wikipedia.org/wiki/List_of_Messier_objects" target=\"_blank\">list of Messiers</a></small><br /> 
-    <select name="star" multiple="multiple" > """ % form
+    <select name="star" multiple="multiple" size="15"> """ % form
     print stars
-    print '</select> <select name="messier" multiple="multiple" >'
+    print '</select> <select name="messier" multiple="multiple" size="15" >'
     print messiers
     print """
     </select></fieldset></fieldset>

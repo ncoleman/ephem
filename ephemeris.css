@@ -1,0 +1,113 @@
+div#content {
+    width: 100%;
+    position: absolute;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 85%;
+    color: black;
+    background: #f5f5f5;
+}
+
+div#forms {
+    width: 98%;
+    float: none;
+    clear: both;
+}
+
+div#intro {
+    width: 90%;
+    line-height: 1.5em;
+    font-size: 85%;
+    float: none;
+    clear: both;
+    border: 1px solid gray;
+    padding: 2em;
+}
+
+em#intro {
+    font-weight: bold;
+}
+
+/* nested lists - second level */
+#intro ul ul {
+    list-style-type: square;
+}
+
+div#input, div#output {
+    position: relative;
+    float: left;
+    border: 1px solid gray;
+    background: #fafafa;
+    padding: 0em;
+    margin: 0px;
+}
+
+div#input {
+	min-width: 530px;
+	width: 43%;
+}
+
+div#output {
+    font-size: 85%;
+    width: 50%;
+    padding-left: 1em;
+}
+
+.error {
+    width: 40%;
+    float: right;
+    font-size: 100%;
+    font-weight: bold;
+    color: red;
+    background: white;
+}
+
+#input table {
+	font-size: 90%;
+	border: none;
+	margin: none;
+	padding: none;
+}
+
+#output table {
+	border: 1px solid gray;
+	margin-top: 1em;
+	padding: 1em;
+}
+
+th {
+    background: #f7f7f7;
+    font-weight: normal;
+}
+
+
+#output th {
+    text-decoration: none;
+    text-align: right;
+    background-color: #ccc;
+}
+
+table, tr, td {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    text-align: right;
+    border: none;
+}
+
+td {
+    height: 1.5em;
+    vertical-align: centre;
+}
+
+td.tdleft {
+    text-align: left;
+}
+
+table.seasons {
+    font-size: 90%;
+}
+
+#output th.seasons {
+    background: #eef;
+}
+
+

@@ -1,4 +1,4 @@
-#!/usr/bin/python -Wignore::DeprecationWarning
+#!/usr/bin/env python 
 #coding=utf-8
 #!/usr/bin/env python -Wignore::DeprecationWarning
 #!/usr/bin/python -Wignore::DeprecationWarning

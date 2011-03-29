@@ -1,0 +1,53 @@
+DONE
+====
+
+*   09/14/2010  added ability to display either alt/az or ra/dec.
+*   09/15/2010  added sortable table columns
+*   09/15/2010  added ability to exclude objects below the horizon from the
+results.
+*   09/18/2010  added Constellations to the output
+*   09/20/2010  validated as strict XHTML 1.0
+*   09/20/2010  added Messiers capability
+*   09/22/2010  refactor renderForm to using large print """ statements
+*   09/22/2010  refactor renderForm to using a dictionary instead of %s
+substitutuions
+*   02/09/2011  added seasons capability   
+*   02/11/2011  added Moon capability
+*   02/12/2011  added/refined crescent moon capability.
+*   02/12/2011  modified css (see git log) to refine error messages, bullets
+for lists, minor box sizes.
+*   02/16/2011  added previous moon capability
+*   02/18/2011  added previous seasons capability
+*   02/18/2011  added Uranus, Neptune
+*   02/24/2011  some minor tidying up (from pylint), see git's log for more
+*   03/03?/2011 prettier output for local and UTC date and time used for
+calcs.
+*   03/07/2011  added JS handler for city dropdown to set all location and
+parameter values to "" when dropdown list is clicked.
+*   03/10/2011  fixed long-standing bug with star/messier alt and az sometimes
+incorrect
+*   03/24/2011  added sort routine for Messier names to sortable.js (ignores leading 'M')
+*   03/25/2011 fixed long-standing hidden bug with regex validation of lat/long
+*   03/25/2011 refactored form generating code where the dropdown lists are
+created by concatenating strings in a loop.  Changed the concatenation from a
+"".join(etc) to list.append within the loop, then doing a "".join finally
+outside the loop.  Profiling showed this is twice as quick (for python 2.6 on
+laptop, should be the same for 2.5 on the server).
+*   03/26/2011  changed sortable.js to force char string to int (Firefox needs it)
+
+
+TODO
+====
+
+*   change to MVC design model
+*   change to template system (Mako looks good)
+*   investigate better ways of outputting HTML (html module looks good, may be others too)
+*   add ability for satellites
+*   fix up formatting for the input form, spec. remove tables and change it to
+use CSS.
+*   DONE change renderForm function away from using values and %s interspersed with
+print statements, to using values stored in a dictionary and big print
+statement with values from a dictionary.
+*   DONE Fix up all header tags to be compliant
+*   DONE Allow for output sorting on various fields NJC 09/15/2010 
+*   DONE Have an option to exclude from output anything below the horizon 09/15/2010  

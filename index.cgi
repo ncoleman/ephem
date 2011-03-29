@@ -12,6 +12,7 @@ import Cookie
 from datetime import datetime
 import ephem
 import pytz
+import warnings
 
 #   config variables
 messierdb = 'Messier.edb'
@@ -758,9 +759,8 @@ def setUTCDate():
 
 
 def getLocalDateTime(date):
-    # Input tuple, returns tuple.
+    # Input ephem.Date tuple, returns time.struct_time tuple.
     # NB Can't use ephem.localtime as that uses the machine's timezone info.
-    # NB input as ephem.Date type, not datetime type.
     # from http://stackoverflow.com/questions/1357711/pytz-utc-conversion
     tz = pytz.timezone(params['tzname'])
     utc = pytz.utc
@@ -922,5 +922,6 @@ def renderHTMLIntro():
 
 
 if __name__ == '__main__':
+    warnings.simplefilter('ignore', DeprecationWarning)
     #import cProfile; cProfile.run("main()")
     main()

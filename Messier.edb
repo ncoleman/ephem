@@ -1,4 +1,14 @@
 # Messier catalog
+# ================================================================================
+#                               *** DISCLAIMER ***
+# No warranty of any kind or extent is made by  Clear Sky Institute Inc. or Elwood
+# Downey in regard of the accuracy, fidelity, integrity or fitness of the database
+# described in this document.The data contained in this file may be the product of
+# scientific and/or personal research, therefore  such information does not belong
+# to Clear Sky Institute Inc. nor to any of its personnel or associates.
+# The  distribution  and/or  storage of this file with commercial purposes, is not
+# allowed, except with permission of the author.
+# --------------------------------------------------------------------------------
 M1,f|R,05:34:30,22:01,8.4,2000,360
 M2,f|C,21:33:30,-00:49,6.5,2000,774
 M3,f|C,13:42:12,28:23,6.4,2000,972

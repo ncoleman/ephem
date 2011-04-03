@@ -1,8 +1,11 @@
-#!/usr/bin/env python 
+#!/home/nickcoleman/local/bin/python
 #coding=utf-8
+#!/usr/bin/env python 
+#!/home/nickcoleman/local/bin/python
 #!/usr/bin/env python -Wignore::DeprecationWarning
 #!/usr/bin/python -Wignore::DeprecationWarning
 #!/home/nickcoleman/local/bin/python -Wignore::DeprecationWarning
+#!/home/nickcoleman/local/bin/python
 
 from __future__ import with_statement
 import cgi, cgitb

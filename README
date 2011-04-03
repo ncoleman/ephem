@@ -1,0 +1,26 @@
+Ephemeris
+=========
+
+Author: Nick Coleman
+Version: 1.2
+Copyright: 2010,2011 Nick Coleman
+
+Ephemeris is an online ephemeris program.  It takes a user's location and timezone and
+calculates a range of ephemeris information for all planets and major moons in the Solar
+System, and it can optionally display information for selected stars and messier
+objects.
+
+It can filter the output to remove clutter, and it can sort the display tables by
+column.
+
+It provides the ability for a user to save their information for later use, by storing
+the data in cookies.
+
+Ephemeris is a python CGI program that runs on any webserver that can handle CGI. It
+uses the PyEphem module ( http://rhodesmill.org/pyephem/ ) to provide the astronomical
+calculations.  Apart from standard python modules, it also uses the Cookie and pytz
+modules.
+
+See the Changelog for TODO.
+
+

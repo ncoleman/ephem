@@ -399,12 +399,12 @@ def renderHTMLHead():
     <html  xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
         <head>
             <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-            <meta name="keywords" content="ephemeris, online, online epheris, xephem, python, pyephem" />
-            <meta name="description" content="web based online ephemeris written in Python using the pyephem module" />
+            <meta name="keywords" content="ephemeris, online, online epheris, planets, stars, messier, xephem, python, pyephem" />
+            <meta name="description" content="web based online ephemeris for planets, stars and messier objects written in Python using the pyephem module" />
             <link rel="stylesheet" href="ephemeris.css" type="text/css" />
             <link rel="shortcut icon" href="favicon.ico" />
             <script type="text/javascript" src="js/sortable.js"></script>
-            <title>Online Ephemeris</title>
+            <title>Online Ephemeris with Planets, Stars and Messiers | Nick Coleman</title>
         </head>
         <body><div id="content">Back to <a name="top"></a><a href="/">Home</a><h1>Ephemeris</h1><p><a href="#intro"><h3>Features &amp; Help</h3></a></p>"""
 

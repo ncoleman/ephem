@@ -502,6 +502,7 @@ def validateParams():
     def validateRelationships():
         valid = True
         validateMsg = ''
+        pi = ephem.pi
         # NB pyEphem can handle invalid date like 30/2; it changes it to 2/3.
         if params['month'] in (4,6,9,11):
             if params['day'] > 30:
@@ -521,7 +522,14 @@ def validateParams():
             validateMsg += r'<p class="error">Pressure: %s is out of the allowed pressure range of 900 mB to 1100mB.</p>' % params['temp']
             valid = False
         if params['minmag'] and not (-30 < params['minmag'] < 20):
-            validateMsg += r'<p class="error">minmag: %s is out of the allowed minmagerature range of -30 to +20. </p>' % params['minmag']
+            validateMsg += r'<p class="error">minmag: %s is out of the allowed minmag range of -30 to +20. </p>' % params['minmag']
+            valid = False
+        # ephem.degrees converts the string to a (internal) radian
+        if params['long'] and not (-pi <= ephem.degrees(params['long']) <= pi):
+            validateMsg += r'<p class="error">long: %s is out of the allowed longitude range of -180 to +180. </p>' % params['long']
+            valid = False
+        if params['lat'] and not (-pi/2.0 < ephem.degrees(params['lat']) < pi/2.0):
+            validateMsg += r'<p class="error">lat: %s is out of the allowed latitude range of -90 to +90. </p>' % params['lat']
             valid = False
         return valid, validateMsg
 

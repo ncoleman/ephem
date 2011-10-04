@@ -39,6 +39,8 @@ laptop, should be the same for 2.5 on the server).
 TODO
 ====
 
+*   need ability to handle high latitudes where Sun or Moon are always up or
+never up. In the meantime, warn user.
 *   change to MVC design model
 *   change to template system (Mako looks good)
 *   investigate better ways of outputting HTML (html module looks good, may be others too)

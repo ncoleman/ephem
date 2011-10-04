@@ -914,6 +914,7 @@ def renderHTMLIntro():
         <li>You can view the javascript in the page's source if you want to check it out.</li>
     </ul>
     </li>
+    <li>Latitudes higher than 67° or lower than -67° may result in a Python error.  This is because sometimes the Sun or Moon either never set or never rise at those latitudes.  I need to add the ability to handle those situations smoothly.</li>
     </ul>
     <h3>About</h3>
     <p>This is version 1.1, usable but not tidy.  It is written in python using the pyEphem module.  pyEphem uses the astro library from xephem, the well known Unix astronomy application.</p>
@@ -921,6 +922,7 @@ def renderHTMLIntro():
     <p>Tested on google-chrome, opera and firefox.  Not yet tested on IE.</p>
     <h3>To Do</h3>
     <ul>
+    <li>Handle high and low latitudes.</li>
     <li>Add options to allow different fields in the output: next/prev rise/alt; transit time/alt.</li>
     <li>create star charts. I think I know how to do it and am now mulling over which projection method to use.  I'm leaning towards stereographic at the moment.</li>
     <li>Add ability to display satellite passes: ISS and Hubble.</li>
